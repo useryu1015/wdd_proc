@@ -1,0 +1,66 @@
+{
+    "disable": false,
+    "name":	"发变811层",
+    "id":	"202303110004xl",
+    "t":	"2023-04-05 09:28:47.475",
+    "websocket": {
+        "desc": "交互协议",
+        "url": "websocket",
+        "ip": "",
+        "port": 10110
+    },
+    "hardware": {
+        "desc": "程序硬件配置"
+    },
+    "port": [{
+        
+
+        }
+    ],
+    "params": [{
+            "disable": false,
+            "kks": "kks编码-用户配置",
+            "TBD_ref": "一个终端采集固定位置，不用配置？",        
+            "port PS": "硬件安装端口， 与aiChNumI 通道一一对应",
+            "port": "温度、湿度、VI-N、AI-N、AC、CHI1、CHI2、CHV1",
+            "vtype": "ENV、VOL、CUR、ASE、PSE",
+            "range": [-10, 20],
+            "range2": [-10, 0, 20]
+        }, {
+            "name": "内置环境监测传感器温度值",
+            "disable": false,
+            "kks": "kks编码-1",
+            "port": "温度",
+            "vtype": "ENV",
+            "range": [-10, 20]
+        }, {
+            "name": "物理通道1电流值",
+            "disable": false,
+            "kks": "kks编码-2",
+            "port": "CHI1",
+            "vtype": "CUR",
+            "range": [-10, 20]
+        }, {
+            "name": "热敏传感器温度值",
+            "disable": false,
+            "kks": "kks编码-2",
+            "port": "CHI2",
+            "vtype": "ASE",
+            "range": [-10, 20]
+        }, 
+        
+
+        {
+            "disable": false,
+            "kks": "kks编码-2",
+            "vtype": "ASE",
+
+            "port": "CHI2",
+            "device": "",
+            "param": "",
+            "rangeI": [0, 25],
+            "rangeD": [-10, 20]
+        }
+
+    ]
+}
