@@ -47,19 +47,17 @@ typedef struct _hw_parame_env_t
     int id;
 
     /* private*/
-    
-
-
 } hw_parame_env_t;
 
 
 
 
-/* 数据类型定义： vtype*/
+/* 数据类型： vtype*/
 typedef enum _hw_device_type_e
 {
     HW_TYPE_CUR = 0x00,
     HW_TYPE_VOL,
+    // ENV or ASE or PSE
     HW_TYPE_TEMP,
     HW_TYPE_HUMI,
     HW_TYPE_NIOSE,
@@ -67,16 +65,28 @@ typedef enum _hw_device_type_e
     HW_TYPE_PM10,
     HW_TYPE_O2,
     HW_TYPE_TVOC,
+    // ASE or PSE
+    HW_TYPE_FLOW,   //流量
+    HW_TYPE_SFLOW,  //累积流量
+    HW_TYPE_RSPD,   //转速
+    HW_TYPE_FREQ,   //频率
+    HW_TYPE_POWER,  //功率    
+    HW_TYPE_ELEC,   //电能
+    HW_TYPE_1,   //
+    HW_TYPE_2,   //
+    // 
     HW_TYPE_TBD,
     HW_TYPE_END         // fix: 遍历枚举 switch
 } hw_device_type_e;
 
-/* 设备种类*/
+/* 设备种类： “terminal”字段*/
 typedef enum _hw_device_kind_e
 {
     HW_KIND_CUR,
     HW_KIND_VOL,
-    HW_KIND_ENV
+    HW_KIND_ENV,
+    HW_KIND_ASE,    // 有源
+    HW_KIND_PSE     // 无源
 } hw_device_kind_e;
 
 /* 数据状态定义： */
@@ -94,7 +104,7 @@ typedef struct _hw_device_info_t
 {
     item_time_t *pDevTime;      // 设备更新时间 （按照模块定义
 
-    hw_device_type_e dev_type;    // 设备类型
+    hw_device_type_e val_type;    // 设备类型
     uint32_t freq;              // 更新频率 ms
     
     // uint32_t nDevice;        // 在线设备总数
@@ -114,7 +124,7 @@ typedef struct _hw_device_info_t
 /* 使用链表，寄存需要上报的json数据集 （重构 */
 typedef struct _hw_data_l
 {
-    hw_device_type_e dev_type;    // 设备类型
+    hw_device_type_e val_type;    // 设备类型
     char *val;
     char *t;
 
@@ -123,7 +133,8 @@ typedef struct _hw_data_l
 
 typedef struct _hw_cache_t
 {
-    hw_device_type_e dev_type;    // 设备类型
+    hw_device_type_e val_type;      // 数据类型
+    // hw_device_kind_e dev_kind;      // 设备种类
     union 
     {
         uint16_t aiChI;		/*!< AI:电流通道 */
@@ -153,6 +164,11 @@ public:
     hw_cache_t **pAiChV;
     uint16_t nAiChEnv;
     hw_cache_t **pChEnv;
+
+    /* A: */
+    hw_device_kind_e devKind;   // 设备种类     // by HW info.type
+    uint16_t nChNum;          // 参数数量
+    hw_cache_t **pVal;        // 参数信息
 
     /* B: 使用链表寄存有更新的数据（监控链表以推送数据到上位机）*/
     // hw_data_l update_list;

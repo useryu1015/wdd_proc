@@ -1,26 +1,24 @@
 {
     "disable": false,
     "name":	"发变811层",
-    "id":	"202303110004xl",
-    "t":	"2023-04-05 09:28:47.475",
     "websocket": {
         "desc": "交互协议",
         "url": "websocket",
-        "ip": "",
+        "ip": "192.168.101.73",
         "port": 10110
     },
     "hardware": {
         "desc": "程序硬件配置"
     },
+    "vtype": ["温度", "湿度", "气压"],
     "port": [{
-        
 
         }
     ],
     "params": [{
             "disable": false,
             "kks": "kks编码-用户配置",
-            "TBD_ref": "一个终端采集固定位置，不用配置？",        
+            "TBD_ref": "一个终端采集固定位置，不用配置？",
             "port PS": "硬件安装端口， 与aiChNumI 通道一一对应",
             "port": "温度、湿度、氧气、VI-N、AI-N、AC、CHI1、CHI2、CHV1",
             "vtype": "ENV、VOL、CUR、ASE、PSE",

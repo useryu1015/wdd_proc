@@ -7,6 +7,8 @@ typedef struct _hw_vtype_t {
     hw_device_type_e id;
     char name[WS_VTYPE_STRLEN_MAX];
     char unit[WS_UNIT_STRLEN_MAX];
+    char desc[WS_STRLEN_MAX];
+    // void *hw_type_map();     // 数据类型 映射算法： 模数转换
 } hw_vtype_t;
 
 

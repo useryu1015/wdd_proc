@@ -8,58 +8,6 @@
 #include "../../hardware/dataDef.h"
 #include "../../config/sys_config.h"
 
-typedef struct _shm_handle_t
-{
-    char f_key[256];
-    char f_lock[256];
-    int shm_id;  // 共享内存的ID
-    void *paddr; // 共享内存的首地址
-
-    uint32_t size; // 共享内存的大小
-
-    // pthread_rwlock_t *prwlock;	//共享内存的读写锁
-} shm_handle_t;
-
-/*打开共享内存*/
-int shmem_open(shm_handle_t *phandle, uint32_t size, int id, _Bool create)
-{
-    key_t key = ftok(phandle->f_key, id);
-
-    if (key < 0)
-    {
-        fprintf(stderr, "ftok key failed!\n");
-        return -1;
-    }
-
-    phandle->shm_id = shmget(key, size, IPC_CREAT | 0666);
-    if (phandle->shm_id < 0)
-    {
-        fprintf(stderr, "shmget failed!\n");
-        return -1;
-    }
-
-    phandle->size = size;
-    phandle->paddr = shmat(phandle->shm_id, NULL, 0);
-
-    /*设置进程共享的读写锁*/
-    // int fd = open(phandle->f_lock, O_CREAT | O_RDWR, 0777);
-    // ftruncate(fd, sizeof(pthread_rwlock_t));
-
-    // phandle->prwlock = mmap(NULL, sizeof(pthread_rwlock_t),
-    //                         PROT_WRITE | PROT_READ, MAP_SHARED, fd, 0);
-    // zlog_info("open f_lock:%s fd:%d", phandle->f_lock, fd);
-    // if (create)
-    // {
-    //     pthread_rwlockattr_t rwlock_attr;
-    //     pthread_rwlockattr_init(&rwlock_attr);
-
-    //     pthread_rwlockattr_setpshared(&rwlock_attr, PTHREAD_PROCESS_SHARED);
-    //     pthread_rwlock_init(phandle->prwlock, &rwlock_attr);
-    // }
-
-    return 0;
-}
-
 int main(int argc, char **argv)
 {
     int i;
@@ -70,7 +18,6 @@ int main(int argc, char **argv)
 
     // 创建共享内存
     printf("key:%d size:%d\n", SHM_HW_KEY, sizeof(SHM_DATA_DEF));
-
     shmid = shmget((key_t)SHM_HW_KEY, sizeof(SHM_DATA_DEF), 0666 | IPC_CREAT);
     if (shmid == -1)
     {
@@ -94,7 +41,7 @@ int main(int argc, char **argv)
     pData->info.aiChNumV = 8;
     pData->info.diChNum = 2;
 
-    strcpy(pData->info.hardwareVer, "V1.0 test");
+    // strcpy(pData->info.hardwareVer, "V1.0 test");
 
     pData->info.envMonitorSet.isInsHumidity = 1;
     pData->info.envMonitorSet.isInsTemperature = 1;
@@ -147,7 +94,7 @@ int main(int argc, char **argv)
 
         printf("\n\n");
         printf("ChI:%d ChV:%d ChEnv:%d\n", pData->info.aiChNumI, pData->info.aiChNumV, 10);
-        printf("version: %s \n", pData->info.hardwareVer);
+        // printf("version: %s \n", pData->info.hardwareVer);
     }
 
     // 设置共享内存

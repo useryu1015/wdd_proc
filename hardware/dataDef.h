@@ -13,7 +13,7 @@
 #define INC_DATADEF_H_
 
 #include <stdint.h>
-#include <time.h>
+#include <sys/time.h>
 
 #define AI_NUM_MAX				32u
 #define AO_NUM_MAX				32u
@@ -21,19 +21,21 @@
 #define DO_NUM_MAX				32u
 #define LED_NUM_MAX				16u
 
-/**
- * 外设初始化状态：硬件是否可选
- *  fix： 会不会在程序运行时，添加通道？  如：是否支持设备热插拔
- *  保持
-*/
-typedef struct RTU_INFO
+typedef struct
 {
 	char type[32];
-	char softwareVer[16];
-	char hardwareVer[16];
+	char softVersion[16];						/*!< 软件版本 */
+	char hwVersion[16];							/*!< 硬件版本 */
+}VERSION, *pVERSION;
+
+typedef struct RTU_INFO
+{
+	VERSION ver;
 	uint16_t aiChNumI;		/*!< AI:电流通道数量 */
 	uint16_t aiChNumV;		/*!< AI:电压通道数量 */
 	uint16_t diChNum;		/*!< ＤI:通道数量 */
+	uint16_t voltageChNum;	/*!< 电压:通道数量 */
+	uint16_t currentChNum;	/*!< 电流:通道数量 */
 	struct envMonitorSet
 	{
 		uint16_t isInsTemperature;		/*!< 是否安装温度 */
@@ -45,21 +47,16 @@ typedef struct RTU_INFO
 		uint16_t isInsTvoc;				/*!< 是否安装TVOC */
 		uint16_t rsv[9];
 	}envMonitorSet;
-// } RTU_INFO, *pRTU_INFO;
-}__attribute__((packed)) RTU_INFO, *pRTU_INFO;
+}RTU_INFO, *pRTU_INFO;
 
-/**
- * 定义硬件参数
- *  只读
-*/
+/*!
+ *  @brief
+ */
 typedef struct SHM_DATA_RO
 {
 	uint16_t run;
 	uint16_t err;
-	struct timeval updateTime;			/*!< 数据更新时间 */
-	float aiValI[AI_NUM_MAX];			/*!< AI:电流数据,单位ｍＡ */
-	float aiValV[AI_NUM_MAX];			/*!< AI:电压数据,单位Ｖ */
-	float diVal[DI_NUM_MAX];			/*!< ＤI: 待定 */
+	struct timeval updateTime;		/*!< 数据更新时间 */
 	struct envMonitor
 	{
 		float temperature;			/*!< 温度,单位℃ */
@@ -71,15 +68,20 @@ typedef struct SHM_DATA_RO
 		float tvoc;					/*!< tvoc,单位mg/m3 */
 		float rsv[9];
 	}envMonitor;
-}__attribute__((packed)) SHM_DATA_RO, *pSHM_DATA_RO;
+	float aiValI[AI_NUM_MAX];			/*!< AI:电流数据,单位ｍＡ */
+	float aiValV[AI_NUM_MAX];			/*!< AI:电压数据,单位Ｖ */
+	float voltageV[AI_NUM_MAX];			/*!< 电压:单位Ｖ */
+	float currentA[AI_NUM_MAX];			/*!< 电流:单位Ａ */
+	uint16_t diVal[DI_NUM_MAX];
+}SHM_DATA_RO, *pSHM_DATA_RO;
 
 /*!
  *  @brief
  */
 typedef struct SHM_DATA_RW
 {
-	uint16_t rsv;			// fix: 非空 or 交换set与info顺序。
-}__attribute__((packed)) SHM_DATA_RW, *pSHM_DATA_RW;
+	uint16_t rsv[128];
+}SHM_DATA_RW, *pSHM_DATA_RW;
 
 /*!
  * @brief
@@ -89,10 +91,9 @@ typedef struct SHM_DATA_DEF
 	SHM_DATA_RO data;
 	SHM_DATA_RW set;
 	RTU_INFO info;
-}__attribute__((packed)) SHM_DATA_DEF, *pSHM_DATA_DEF;
+}SHM_DATA_DEF, *pSHM_DATA_DEF;
 
 extern pSHM_DATA_DEF shmData;
-
 
 #ifdef __cplusplus
 extern "C" {

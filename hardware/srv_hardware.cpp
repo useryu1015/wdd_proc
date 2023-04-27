@@ -105,7 +105,7 @@ void hardware::show_hw_table()
         char str[1024] = {0};
         pcache = hw->pAiChI[i];
 
-        sprintf(str,"%d %s %s %d %s %s", y, "TBD", "TBD", pcache->dev_type, 
+        sprintf(str,"%d %s %s %d %s %s", y, "TBD", "TBD", pcache->val_type, 
                                         hw_var2string(pcache->val), "2023-04-25");
         s_table_valuesetxs(hw_table, y++, x, str, ' ');
     }
@@ -346,7 +346,7 @@ void hardware::hw_param_monitor()
     for (i = 0; i < nAiChEnv && 0; i++)
     {
         hw_cache_t *pd = pChEnv[i];
-        float realdata = get_env_value_by_vtype(pd->dev_type);
+        float realdata = get_env_value_by_vtype(pd->val_type);
 
         if (pd->val == realdata)
             continue;
@@ -410,7 +410,7 @@ hardware::hardware(SHM_DATA_DEF *shmD)
     }
 
     for (i = 0; i < nAiChI; i++) {
-        pAiChI[i]->dev_type = HW_TYPE_CUR;
+        pAiChI[i]->val_type = HW_TYPE_CUR;
 
     }
 
@@ -423,7 +423,7 @@ hardware::hardware(SHM_DATA_DEF *shmD)
     }
 
     for (i = 0; i < nAiChV; i++) {
-        pAiChV[i]->dev_type = HW_TYPE_VOL;
+        pAiChV[i]->val_type = HW_TYPE_VOL;
 
     }
 
@@ -441,7 +441,7 @@ hardware::hardware(SHM_DATA_DEF *shmD)
         if (!get_env_isIns_by_vtype(vtype, dev_info))
             continue;
 
-        pChEnv[n]->dev_type = vtype;
+        pChEnv[n]->val_type = vtype;
         pChEnv[n]->status = HW_DATA_INIT;
         
         n++;

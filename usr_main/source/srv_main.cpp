@@ -2,6 +2,7 @@
 #include "srv_hardware.h"
 #include "ws_dataflow.h"
 #include "srv_websocket.h"
+#include "service.h"
 
 int g_running = true;
 int g_table = false;
@@ -83,12 +84,11 @@ void drv_init()
     shm_hardware_init((void **)&shmData);
     // int shm_init(shm_handle_t *shm_handle)
 
-    sleep(1);
     hw = new hardware(shmData);
 
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     int rtn;
 
@@ -96,12 +96,15 @@ int main()
     signal(SIGINT, signal_handler);     /* ctrl^c */
     signal(SIGQUIT, signal_handler);    /* ctrl^\ */
     signal(SIGTERM, signal_handler);    /* kill/killall */
-
     signal(SIGTSTP, signal_table_handler);    /* ctrl Z （stop show）/*/
-
 
     /* 驱动程序初始化*/
     drv_init();
+    
+    /* Use Tool*/
+    option_main(argc, argv);
+
+
 
     /* 上位机 数据交互 线程*/
     // run_ws_client();

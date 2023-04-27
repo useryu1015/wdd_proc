@@ -21,15 +21,21 @@
 #include "srv_hardware.h"
 
 const hw_vtype_t hw_vtype_values[] = {
-    {HW_TYPE_CUR, "电流", "A"},
-    {HW_TYPE_VOL, "电压", "V"},
-    {HW_TYPE_TEMP, "温度", "℃"},
-    {HW_TYPE_HUMI, "湿度", "%%RH"},
-    {HW_TYPE_NIOSE, "噪声", "MPa"},
-    {HW_TYPE_PM2_5, "PM2.5", "μg/m³"},
-    {HW_TYPE_PM10, "PM10", "μg/m³"},
-    {HW_TYPE_O2, "氧气", "%%"},
-    {HW_TYPE_TVOC, "TVOC", "mg/m³"},
+    {HW_TYPE_CUR,   "电流", "A", "安培"},
+    {HW_TYPE_VOL,   "电压", "V"},
+    {HW_TYPE_TEMP,  "温度", "℃"},
+    {HW_TYPE_HUMI,  "湿度", "%%RH"},
+    {HW_TYPE_NIOSE, "噪声", "MPa", "分贝，不需要换算"},
+    {HW_TYPE_PM2_5, "PM2.5", "μg/m³", "微克/立方米，一般可省略单位"},
+    {HW_TYPE_PM10,  "PM10", "μg/m³", "微克/立方米，一般可省略单位"},
+    {HW_TYPE_O2,    "氧气", "%%", "体积比，不需要换算"},
+    {HW_TYPE_TVOC,  "TVOC", "mg/m³"},
+    {HW_TYPE_FLOW,  "流量", "m³/m"},
+    {HW_TYPE_SFLOW, "累积流量", "m³"},
+    {HW_TYPE_RSPD,  "转速", "r/min"},
+    {HW_TYPE_FREQ,  "频率", "Hz"},    
+    {HW_TYPE_POWER, "功率", "W"},
+    {HW_TYPE_ELEC,  "电能", "KW.h"},
     // 水压:MPa  气压:Kpa
 };
 
@@ -93,7 +99,7 @@ _Bool _ws_format_hardware_param(cJSON *jp, hw_cache_t *param)
 
     cJSON_AddStringToObject(jp, "kks", "kks编码");
     // cJSON_AddStringToObject(jp, "ref", ); 
-    cJSON_AddStringToObject(jp, "vtype", get_hw_name_by_type(param->dev_type)); 
+    cJSON_AddStringToObject(jp, "vtype", get_hw_name_by_type(param->val_type)); 
     cJSON_AddStringToObject(jp, "val", hw_var2string(param->val));
     // cJSON_AddStringToObject(jp, "t", ); 
 
@@ -135,7 +141,7 @@ _Bool ws_format_hardware_data(hw_cache_t **pData, uint16_t number, char **out)
         if (!(jparam = cJSON_CreateObject()))
             return -1;
     
-        zlog_info("param:[ kks:%s ref:%sval:%f type:%d ]", pd->val, pd->dev_type);
+        zlog_info("param:[ kks:%s ref:%sval:%f type:%d ]", pd->val, pd->val_type);
         hw->hw_used_cache(pd);                      // set used
         _ws_format_hardware_param(jparam, pd);      // 构建json参数数据集
         
