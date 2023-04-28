@@ -62,6 +62,7 @@
         "sys_shm.h": "c",
         "zlog.h": "c",
         "stringtable.h": "c",
-        "cjson.h": "c"
+        "cjson.h": "c",
+        "string": "cpp"
     }
 }

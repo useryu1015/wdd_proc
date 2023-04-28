@@ -11,11 +11,6 @@
 
 
 
-
-
-
-
-
 /**
  * 生成参数点配置文件
 */
@@ -26,23 +21,31 @@
  * 脚本开发： 将用户配置的 usr_main.jcon 拷贝为 dev_main.json   并备份历史配置文件xxxx
  *  历史配置： 数据库格式，配置文件的： key、name、function、device、 （usage：根据用户选择配置文件，启用终端不同功能）
 */ 
-#define TREMINAL_CONF_FILE "1.RunEnv/config/dev/usr_main.json"
+#define TREMINAL_GENR_CONF_FILE "1.RunEnv/config/dev/usr_main.json"
 
 _Bool _usr_genrate_param(cJSON *jp, hw_cache_t *param)
 {
     char buf[WS_STRLEN_MAX];
-    static int i = 1;
+    static int i = 0;
 
     if (!jp || !param)
         return false;
 
-    sprintf(buf, "%skks编码-%d", GENERATE_NAME_USER, i++);
+    sprintf(buf, "%skks编码-%d", GENERATE_NAME_USER, ++i);
     cJSON_AddStringToObject(jp, "kks", buf);
-    sprintf(buf, "%sref-%d", GENERATE_NAME_USER, i);
-    cJSON_AddStringToObject(jp, "ref", buf);
-    cJSON_AddStringToObject(jp, "vtype", "_HDW_温度");
-    cJSON_AddStringToObject(jp, "port", "_HDW_接入端口");
+    cJSON_AddStringToObject(jp, "room", GENERATE_NAME_USER);
+    // cJSON_AddStringToObject(jp, "port", "_HDW_接入端口");
+
+    if (hw->hwInfo.kind != HW_KIND_ENV)
+        cJSON_AddNumberToObject(jp, "port", i);
     // cJSON_AddStringToObject(jp, "conf_sta", "INIT");    // 参数点配置状态： 初始、更新、追加、删除、 在线、掉线
+
+    /* 只生成空字段，根据传感器配置！！ */
+    if (hw->hwInfo.kind == HW_KIND_ASE || hw->hwInfo.kind == HW_KIND_PSE) {
+        cJSON_AddStringToObject(jp, "vtype", get_hw_name_by_type(param->val_type));
+        cJSON_AddStringToObject(jp, "rangI", "_TBD_fixArr");
+        cJSON_AddStringToObject(jp, "rangD", "_TBD_fixArr");
+    }
 
     return true;
 }
@@ -57,13 +60,13 @@ _Bool usr_genrate_proc_json(char **out)
 
     cJSON_AddStringToObject(root, "name", "_TBD_安装区域");
     cJSON_AddStringToObject(root, "id", "202303110004xl");      // 只读 且唯一
-    cJSON_AddStringToObject(root, "terminal", "_HDW_CUR");      // 终端类型：hw type
+    cJSON_AddStringToObject(root, "terminal", hw->hwInfo._kind);      // 终端类型：hw type
     cJSON_AddFalseToObject (root, "disable");
     cJSON_AddStringToObject(root, "time", "2023-04-05 09:28:47.475");
 
-    for (i = 0; i < hw->nAiChI; i++)
+    for (i = 0; i < hw->nChNum; i++)
     {
-        hw_cache_t *pd = hw->pAiChI[i];
+        hw_cache_t *pd = hw->pCache[i];
         cJSON *jparam;
 
         if (!(jparam = cJSON_CreateObject()))
@@ -92,7 +95,7 @@ void generate_json_file()
     usr_genrate_proc_json(&buf);
     zlog_trace("\n%s", buf);
     
-    write_file(TREMINAL_CONF_FILE, (uint8_t *)buf, strlen(buf));
+    write_file(TREMINAL_GENR_CONF_FILE, (uint8_t *)buf, strlen(buf));
 
 }
 

@@ -1,116 +1,128 @@
 #include "dataDef.h"
 #include "srv_hardware.h"
-#include "common.h"
-
+#include "ws_dataflow.h"
 
 hardware *hw;
 
-int hw_shm_init()
+const hw_vkind_t hw_vkind_values[] = {
+    {HW_KIND_COL, "COL", "标段二"},
+    {HW_KIND_CUR, "CUR", "电流"},
+    {HW_KIND_VOL, "VOL", "电压"},
+    {HW_KIND_ENV, "ENV", "环境"},
+    {HW_KIND_ASE, "ASE", "有源传感器"},
+    {HW_KIND_PSE, "PSE", "无源传感器"},
+    {HW_KIND_TBD, "TBD", "未定义"}
+};
+
+hw_dev_kind_e get_device_kind_by_name(char *name)
 {
+    int i = 0, cnt = sizeof(hw_vkind_values) / sizeof(hw_vkind_values[0]);
 
-}
-
-int hw_param_monitor(RTU_INFO *p_info, SHM_DATA_RO *p_data){
-    
-}
-
-/**
- * planA: shm中updateTime更新， 便更新数据
-*/
-int _hw_param_monitor(hw_device_info_t *p_dev, RTU_INFO *p_info, SHM_DATA_RO *p_data)
-{
-    int i;
-
-    if (!p_info || !p_data || !p_dev)
-        return -1;
-
-
-    for (i = 0; i < p_info->aiChNumI; i++)
+    for (; i < cnt; ++i)
     {
-        // if(p_data->updateTime == 0)
-            // continue;
-
-        p_data->aiValI[i];
+        if (0 == strcasecmp(name, hw_vkind_values[i].name))
+        {
+            return (hw_dev_kind_e)hw_vkind_values[i].id;
+        }
     }
 
+    return HW_KIND_TBD;
+}
 
-    // for (i = 0; i < p_dev->nDevice; i++)
-    // {
-        
-    // }
+/* fix: 解析shm硬件 类型+型号: CLO:DA_IO_02 */
+// inline void hw_kind_init(char *name, hw_dev_kind_e *kind, char *model)
+void hardware::_hw_kind_init()
+{
+    // char kind[32];
+    // fscanf(dev_info->ver.type, "%s:%s", kind, hwInfo.model);
+
+    hwInfo._kind[3] = '\0';
+    strncpy(hwInfo._kind, dev_info->ver.type, 3);
+    strncpy(hwInfo.model, dev_info->ver.type+4, 32);
+    hwInfo.kind = get_device_kind_by_name(hwInfo._kind);
+
+    zlog_info("kind[%d]:%s model:%s", hwInfo.kind, hwInfo._kind, hwInfo.model);
 
 }
 
-
-/**
- * planB: 监听每个参数是否有修改。。
-*/
-int __hw_param_monitor(SHM_DATA_RO *p_data_last, SHM_DATA_RO *p_data, RTU_INFO *p_info, hw_data_l *)
+/* 获取硬件通道数量*/
+int hardware::hw_get_channel_sum()
 {
-    int i;
-    SHM_DATA_RO *last = p_data_last;
-
-    if (!p_info || !p_data || !last)
-        return -1;
-
-    for (i = 0; i < p_info->aiChNumI; i++)
+    switch (hwInfo.kind)
     {
-        if (last->aiValI[i] == p_data->aiValI[i])
-            continue;
-
+    case HW_KIND_CUR:   return dev_info->currentChNum;
+    case HW_KIND_VOL:   return dev_info->voltageChNum;
+    case HW_KIND_ENV:   return get_env_isEnable_number();
+    case HW_KIND_ASE:
+    case HW_KIND_PSE:   return dev_info->aiChNumI;
+    default:
+        zlog_error("Channel number too less ");
+        break;
     }
 
-
+    return 1;
 }
 
-/**
- * 采集硬件参数值
- *  1. 监听updateTime 更新数据到上位机
- *  2. 根据RTU_INFO 判断数据是否有效
- *  3. 数据类型转换？
-*/
-int run_hardware_monitor()
+int hardware::get_param_ref(char *ref, hw_cache_t *param)
 {
+    int rtn;
 
-    /* */
-    // hw_shm_init();
+    if (!ref || !param)
+        return -1;
 
+    if (hwInfo.kind == HW_KIND_ENV)
+        rtn = sprintf(ref, "%s/%s.%s", hwInfo.name, param->room, get_hw_name_by_type(param->val_type));
+    else
+        rtn = sprintf(ref, "%s/%s.%s%d", hwInfo.name, param->room, get_hw_name_by_type(param->val_type), param->_GPIO.io);
 
-    /* 监控硬件参数， 如果有数据更新xx */
-    // hw_param_monitor();
-
-
-    // 上位机推送数据
-    // lws_callback_on_writable(vhd->wsi_multi);       // 触发LWS_CALLBACK_CLIENT_WRITEABLE回调
+    if (!rtn) {
+        zlog_error("error");
+        return -1;
+    }
 
     return 0;
 }
 
+int hardware::get_val_strUnit(char *buf, hw_cache_t *param)
+{
+    int rtn;
+    // char vals[128];
 
+    if (!buf || !param)
+        return -1;
 
+    // "4.8-A"
+    rtn = sprintf(buf, "%.2f-%s", param->val, get_hw_unit_by_type(param->val_type));
+    // zlog_info("unit: %s", vals);
 
+    return rtn;
+}
 
 
 void hardware::show_hw_table()
 {
     int i;
     hw_cache_t *pcache;
-    int x, y = 1, row, line = hw->nAiChI + hw->nAiChV + hw->nAiChEnv;
-    char *hw_table = s_table_create_0("hardware data", 6, 2+line-10, 13);           // 列，行，宽（长，宽，间距）
+    int x, y = 1, row, line = hw->nChNum;
+    const int maxWidth = 25;
+    char *hw_table = s_table_create_0("hardware data", 6, 2+line, maxWidth);    // 列，行，宽（长，宽，间距）
 
     s_table_valuesetxs(hw_table, 0, 1, "kks ref vtype val t", ' ');
     s_table_valuesetys(hw_table, 0, 1, "1 2 3 4 5 6", ' ');
 
-    for (i = 0, x = 0; i < hw->nAiChI; i++) {
-        char str[1024] = {0};
-        pcache = hw->pAiChI[i];
+    for (i = 0, x = 0; i < hw->nChNum; i++) {
+        char str[maxWidth] = {0};
+        char ref[maxWidth] = {0};
+        char vtype[maxWidth] = {0};
+        pcache = hw->pCache[i];
 
-        sprintf(str,"%d %s %s %d %s %s", y, "TBD", "TBD", pcache->val_type, 
-                                        hw_var2string(pcache->val), "2023-04-25");
-        s_table_valuesetxs(hw_table, y++, x, str, ' ');
+        sprintf(vtype, "%s", get_hw_name_by_type(hw->pCache[i]->val_type));
+        sprintf(ref, "xx/%s.%s%d", vtype,hw->hwInfo._kind, hw->pCache[i]->_GPIO.io);
+        // get_param_ref(ref, pcache);
+        sprintf(str, "%d,%s,%s,%s,%s,%s", y, pcache->kks, ref, vtype, 
+                                        hw_var2string(pcache->val), hw->hwInfo.time);
+        s_table_valuesetxs(hw_table, y++, x, str, ',');
     }
-
-    
 
     /*打印表格*/
     const char *tb_str = s_table_string_get(hw_table);
@@ -140,6 +152,11 @@ void *objects_new_2arr(unsigned int nitems, unsigned int obj_size)
     void **pptr;
     char *ptr;
 
+    if (!nitems) {
+        zlog_error("nitems: %d", nitems);
+        nitems = 0;
+    }
+
     pptr = (void**)calloc(nitems + 1, sizeof(long));
     ptr = (char *)calloc(nitems, obj_size);
 
@@ -151,11 +168,11 @@ void *objects_new_2arr(unsigned int nitems, unsigned int obj_size)
     return pptr;
 }
 
-int get_device_kind_by_type(hw_device_type_e vtype)
+int get_device_kind_by_type(hw_dev_type_e vtype)
 {
     switch (vtype)
     {
-    case HW_TYPE_CUR: return HW_KIND_CUR;
+    case HW_TYPE_CUR:   return HW_KIND_CUR;
     case HW_TYPE_VOL:   return HW_KIND_VOL;
     case HW_TYPE_TEMP:
     case HW_TYPE_HUMI:
@@ -172,7 +189,7 @@ int get_device_kind_by_type(hw_device_type_e vtype)
     return -1;
 }
 
-float hardware::get_env_value_by_vtype(hw_device_type_e vtype)
+float hardware::get_env_value_by_vtype(hw_dev_type_e vtype)
 {
     switch (vtype)
     {
@@ -191,7 +208,7 @@ float hardware::get_env_value_by_vtype(hw_device_type_e vtype)
     return -1;
 }
 
-uint16_t hardware::get_env_isIns_by_vtype(hw_device_type_e vtype, RTU_INFO *info)
+uint16_t hardware::get_env_isIns_by_vtype(hw_dev_type_e vtype, RTU_INFO *info)
 {
     if (!info)
         return -1;
@@ -279,20 +296,37 @@ int hardware::hw_look_cache_status(hw_cache_t **pData, uint16_t number)
     return HW_DATA_KEEP;
 }
 
-int hardware::hw_look_cache_status(hw_device_kind_e vkind)
+
+/**
+ *  gpio: 参数点对应的物理端口
+*/
+int hardware::get_gpio_val(float *val, hw_dev_kind_e kind, hw_dev_type_e type, int gpio)
 {
-    
-    switch (vkind)
+    float rdata;
+    int hwGpio = gpio - 1;      // rang:  0 ~ nChNum
+
+    switch (kind)
     {
-    case HW_KIND_CUR:   return hw_look_cache_status(pAiChI, nAiChI);
-    case HW_KIND_VOL:   return hw_look_cache_status(pAiChV, nAiChV);
-    case HW_KIND_ENV:   return hw_look_cache_status(pChEnv, nAiChEnv);
-    default:
-        zlog_error("No such datatype is defined!"); 
+    case HW_KIND_CUR:
+        rdata = real_data->currentA[hwGpio];      // fix: gpio定位方式
         break;
+    case HW_KIND_VOL:
+        rdata = real_data->voltageV[hwGpio];      // fix: gpio定位方式
+        break;
+    case HW_KIND_ASE:
+    case HW_KIND_PSE:    
+        rdata = real_data->aiValI[hwGpio];      // fix: gpio定位方式
+        break;
+    case HW_KIND_ENV:
+        rdata = get_env_value_by_vtype(type);
+        break;
+    default:
+        zlog_error("param error");
+        return -1;
     }
 
-    return -1;
+    *val = rdata;
+    return 0;
 }
 
 
@@ -303,65 +337,65 @@ int hardware::hw_look_cache_status(hw_device_kind_e vkind)
 void hardware::hw_param_monitor()
 {
     int i;
-
-    // zlog_info("aiChNumI: %d", dev_info->aiChNumI);
-    for (i = 0; i < dev_info->aiChNumI; i++)
+    float rdata;
+    
+    for (i = 0; i < nChNum; i++)
     {
-        hw_cache_t *pd = pAiChI[i];
-        // zlog_info("Value [cache:%f realData:%f]", pd->val, real_data->aiValI[i]);
+        hw_cache_t *pd = pCache[i];
 
         /* if 未更新 && 超过定时更新周期*/
         // pd->status = HW_DATA_KEEP;
+        
+        get_gpio_val(&rdata, hwInfo.kind, pd->val_type, pd->_GPIO.io);
+        // zlog_info("type %d o%f r%f cache%f", hwInfo.kind, real_data->currentA[i], rdata, pd->val);
 
-        // if (last_data->aiValI[i] == real_data->aiValI[i])
-        if (pd->val == real_data->aiValI[i] && 1)
+        if (pd->val == rdata)
             continue;
 
         /* 更新数据 */
         pthread_mutex_lock(&pd->lock_ring); /* --------- ring lock { */
-        pd->val = real_data->aiValI[i];     // fix: 定位方式
-        pd->t = real_data->updateTime;      // fix: 时钟源
+        pd->val = rdata;
+        pd->t = real_data->updateTime;
 
         pd->status = HW_DATA_UPTARE;
         pthread_mutex_unlock(&pd->lock_ring); /* } ring lock */
         // zlog_info("Value: %f", pd->val);
     }
+}
 
-    // zlog_info("aiChNumV: %d", dev_info->aiChNumV);
-    for (i = 0; i < dev_info->aiChNumV; i++)
-    {
-        hw_cache_t *pd = pAiChV[i];
-        
-        if (pd->val == real_data->aiValV[i])
-            continue;
+int hardware::hw_info_init(SHM_DATA_DEF *shmD)
+{
+    int i, n;
 
-        pthread_mutex_lock(&pd->lock_ring);
-        hw_update_cache(pd, i);
-
-        pthread_mutex_unlock(&pd->lock_ring);
-        // zlog_info("Value: %f", pd->val);
+    if (!shmD || !&shmD->info || !&shmD->data) {
+        zlog_error("hardware init error");
+        // delete hw;
+        return -1;
     }
 
-    /* 更新环境参数*/
-    for (i = 0; i < nAiChEnv && 0; i++)
-    {
-        hw_cache_t *pd = pChEnv[i];
-        float realdata = get_env_value_by_vtype(pd->val_type);
+    /* mount shm To hardware class*/
+    shm_data = shmD;
+    dev_info = &shmD->info;
+    real_data = &shmD->data;
 
-        if (pd->val == realdata)
-            continue;
+    /* 初始化硬件参数：内存分配、默认属性 */
+    _hw_kind_init();
 
-        pthread_mutex_lock(&pd->lock_ring);
-        pd->val = realdata;
-        pd->t = real_data->updateTime;      // fix: 时钟源
+    nChNum = hw_get_channel_sum();
+    pCache = (hw_cache_t **)objects_new_2arr(nChNum, sizeof(hw_cache_t));
+    // nChNum = (dev_info->aiChNumI < AI_NUM_MAX) ? dev_info->aiChNumI : AI_NUM_MAX;
 
-        pd->status = HW_DATA_UPTARE;
-        pthread_mutex_unlock(&pd->lock_ring);
-        // zlog_info("Value: %f", pd->val);
-    }
+    zlog_info("GPIO sum: %d", nChNum);
 
-    // _show_hw_table();
+    // 初始化设备类型； 目前只能根据json配置
+    // for (i = 0; i < nChNum; i++) {
+    //     hw_cache_t *pd = pCache[i];
 
+    //     pd->val_type = HW_TYPE_CUR;
+    // }
+
+    zlog_info("hardware init done");
+    return 0;
 }
 
 
@@ -371,92 +405,24 @@ void hardware::hw_heartbeat()
 
 }
 
-
 hardware::hardware()
 {
     
 }
 
-
 hardware::hardware(SHM_DATA_DEF *shmD)
 {
-    int i, n;
 
-    if (!shmD || !&shmD->info || !&shmD->data) {
-        zlog_error("hardware init error");      // fix
-        delete hw;
-        return;
+    if (hw_info_init(shmD) != 0)
+    {
+        zlog_info("hardware init failed");
     }
-    
-    /* mount shm To hardware class*/
-    shm_data = shmD;
-    dev_info = &shmD->info;
-    real_data = &shmD->data;
-
-    zlog_info("HW: nChI:%d nChV:%d nChEnv:%d ", shmD->info.aiChNumI, shmD->info.aiChNumV, shmD->info.diChNum);
-
-    /**
-     * 初始化硬件参数：内存分配、默认属性 
-     */
-    /*电流*/
-    nAiChI = (dev_info->aiChNumI < AI_NUM_MAX) ? dev_info->aiChNumI : AI_NUM_MAX;
-    if (nAiChI) {
-        pAiChI = (hw_cache_t **)objects_new_2arr(nAiChI, sizeof(hw_cache_t));
-    } else {
-        zlog_debug("Channel number too less %d", nAiChI);
-        // fix: avoid segment fault
-        // pAiChI = (hw_cache_t **)objects_new_2arr(1, sizeof(hw_cache_t));
-        // nAiChI = 1;
-    }
-
-    for (i = 0; i < nAiChI; i++) {
-        pAiChI[i]->val_type = HW_TYPE_CUR;
-
-    }
-
-    /*电压*/
-    nAiChV = dev_info->aiChNumV;
-    if (nAiChV) {
-        pAiChV = (hw_cache_t **)objects_new_2arr(nAiChV, sizeof(hw_cache_t));
-    } else {
-        zlog_debug("Channel number too less %d", nAiChV);
-    }
-
-    for (i = 0; i < nAiChV; i++) {
-        pAiChV[i]->val_type = HW_TYPE_VOL;
-
-    }
-
-    /*环境*/
-    nAiChEnv = get_env_isEnable_number();
-    if (nAiChEnv) {
-        pChEnv = (hw_cache_t **)objects_new_2arr(nAiChEnv, sizeof(hw_cache_t));
-    } else {
-        zlog_debug("Channel number too less %d", dev_info->aiChNumI);
-    }
-
-    for (i = 0, n = 0; i < JSON_HW_ENV_SNUM; i++) {
-        hw_device_type_e vtype = (hw_device_type_e)(HW_TYPE_TEMP + i);     // fix
-        
-        if (!get_env_isIns_by_vtype(vtype, dev_info))
-            continue;
-
-        pChEnv[n]->val_type = vtype;
-        pChEnv[n]->status = HW_DATA_INIT;
-        
-        n++;
-    }
-
-    // zlog_info("HW: nChI:%d nChV:%d nChEnv:%d ", nAiChI, nAiChV, nAiChEnv);
-    zlog_info("hardware init done");
 
 }
 
 hardware::~hardware()
 {
-    free(pAiChI);
-    free(pAiChV);
-    free(pChEnv);
+    free(pCache);
     
 }
 

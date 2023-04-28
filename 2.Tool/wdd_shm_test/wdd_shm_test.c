@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     void *shm = NULL;
     SHM_DATA_DEF *pData;
     int shmid;
+    char dtyep[32];
 
     // 创建共享内存
     printf("key:%d size:%d\n", SHM_HW_KEY, sizeof(SHM_DATA_DEF));
@@ -37,11 +38,17 @@ int main(int argc, char **argv)
     printf("Memory attched at:%p %d\n", shm, (long)shm);
 
     /*硬件状态*/
-    pData->info.aiChNumI = 4;
+    pData->info.currentChNum = 10;
+    pData->info.voltageChNum = 12;
+    pData->info.aiChNumI = 8;
     pData->info.aiChNumV = 8;
     pData->info.diChNum = 2;
 
-    // strcpy(pData->info.hardwareVer, "V1.0 test");
+    // sprintf(dtyep, "CUR:DA_IO_01");
+    sprintf(dtyep, "%s:DA_IO_01", argv[1]);
+    strcpy(pData->info.ver.type, dtyep);
+    printf("terminal:%s", pData->info.ver.type);
+
 
     pData->info.envMonitorSet.isInsHumidity = 1;
     pData->info.envMonitorSet.isInsTemperature = 1;
@@ -51,43 +58,37 @@ int main(int argc, char **argv)
 
     rands++;
 
-    for (i = 0; i < pData->info.aiChNumI; i++)
-    {
-        pData->data.aiValI[i] = i * rands;
-    }
-
-    for (i = 0; i < pData->info.aiChNumV; i++)
-    {
-        pData->data.aiValV[i] = i * rands;
-    }
-
     pData->data.envMonitor.temperature = rands;
 
+    sleep(1);
     while (1)
     {
         usleep(500 * 1000);
         sleep(1);
-        // printf("%f \n", pData->data.aiValV[2]);
-        // printf("num: %x %x \n", *(char *)shm, *(((char *)(shm))+1));
-        // printf("num: %x %x \n", *(char *)pData, *(((char *)(pData)) +1));
-        // (*(char *)shm)++;
-        // pData->data.aiValV[2] = pData->data.aiValV[2] + 2;
 
         rands++;
 
+        for (i = 0; i < pData->info.currentChNum; i++)
+        {
+            printf("CUR: %f \n", pData->data.currentA[i]);     
+
+            if (i % 2)
+                continue;
+
+            pData->data.currentA[i] = i * rands;
+        }
+
         for (i = 0; i < pData->info.aiChNumI; i++)
         {
-            // if (i % 3)
-            //     continue;
 
             pData->data.aiValI[i] = pData->data.aiValI[i] + 1;
-            printf("AI: %f \n", pData->data.aiValI[i]);
+            // printf("AI: %f \n", pData->data.aiValI[i]);
         }
 
         for (i = 0; i < pData->info.aiChNumV; i++)
         {
             pData->data.aiValV[i] = i * rands;
-            printf("VI: %f \n", pData->data.aiValV[i]);
+            // printf("VI: %f \n", pData->data.aiValV[i]);
         }
 
         pData->data.envMonitor.temperature = rands;

@@ -64,13 +64,11 @@ int loop()
         ws_heartbeat();
 
 
-        if (g_table && ratelimit_connects(&tsec, 1u)) {
+        if (g_table && ratelimit_connects(&tsec, 0u)) {
             hw->show_hw_table();
         }
 
-        // ws_format_hardware_data();
-
-        usleep(10 * 1000);          // 业务频率
+        usleep(10 *10 * 1000);          // 业务频率
     }
     
     return -1;
@@ -85,8 +83,27 @@ void drv_init()
     // int shm_init(shm_handle_t *shm_handle)
 
     hw = new hardware(shmData);
+}
+
+
+/**
+ * 解析json配置， 初始化hw_cache_t **pCache
+*/
+void serve_init()
+{
+    // hw_cache_t *pc;
+
+    // pc = hw->pCache[0];
+
+    // pc->val_type;
+    // pc->kks;
+    // pc->_GPIO;
+
+    conf_main_init();
+    zlog_info("conf main init done");
 
 }
+
 
 int main(int argc, char* argv[])
 {
@@ -100,11 +117,12 @@ int main(int argc, char* argv[])
 
     /* 驱动程序初始化*/
     drv_init();
+
+    /* 业务程序初始化： json配置 lws */
+    serve_init();
     
     /* Use Tool*/
     option_main(argc, argv);
-
-
 
     /* 上位机 数据交互 线程*/
     // run_ws_client();
@@ -113,8 +131,8 @@ int main(int argc, char* argv[])
     {
         loop();
 
-        // zlog_fatal("sys crash!");
         // sleep(1);
+        zlog_fatal("sys crash!");
     }
 
     delete hw;

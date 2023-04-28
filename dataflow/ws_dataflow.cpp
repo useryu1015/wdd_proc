@@ -19,6 +19,8 @@
 */
 #include "ws_dataflow.h"
 #include "srv_hardware.h"
+#include "cJSON.h"
+#include "common.h"
 
 const hw_vtype_t hw_vtype_values[] = {
     {HW_TYPE_CUR,   "电流", "A", "安培"},
@@ -39,23 +41,23 @@ const hw_vtype_t hw_vtype_values[] = {
     // 水压:MPa  气压:Kpa
 };
 
-
-hw_device_type_e get_hw_type_by_name(const char *name)
+hw_dev_type_e get_hw_type_by_name(const char *name)
 {
     int i = 0, cnt = sizeof(hw_vtype_values) / sizeof(hw_vtype_values[0]);
 
     for (; i < cnt; ++i)
     {
+        // zlog_info("%s -- %s", name, hw_vtype_values[i].name);
         if (0 == strcasecmp(name, hw_vtype_values[i].name))
         {
-            return (hw_device_type_e)hw_vtype_values[i].id;
+            return (hw_dev_type_e)hw_vtype_values[i].id;
         }
     }
 
     return HW_TYPE_TBD;
 }
 
-const char *get_hw_name_by_type(hw_device_type_e vtype)
+const char *get_hw_name_by_type(hw_dev_type_e vtype)
 {
     int i = 0, cnt = sizeof(hw_vtype_values) / sizeof(hw_vtype_values[0]);
 
@@ -70,7 +72,7 @@ const char *get_hw_name_by_type(hw_device_type_e vtype)
     return EMPTY_STRING;
 }
 
-const char *get_hw_unit_by_type(hw_device_type_e vtype)
+const char *get_hw_unit_by_type(hw_dev_type_e vtype)
 {
     int i = 0, cnt = sizeof(hw_vtype_values) / sizeof(hw_vtype_values[0]);
 
@@ -86,27 +88,28 @@ const char *get_hw_unit_by_type(hw_device_type_e vtype)
 }
 
 
-
-
 _Bool _ws_format_hardware_param(cJSON *jp, hw_cache_t *param)
 {
     char ref[WS_STRLEN_MAX];
+    char buf[128] = {0};
 
     if (!jp || !param)
         return false;
 
-    // sprintf(ref, )
+    hw->get_param_ref(ref, param);
 
-    cJSON_AddStringToObject(jp, "kks", "kks编码");
-    // cJSON_AddStringToObject(jp, "ref", ); 
-    cJSON_AddStringToObject(jp, "vtype", get_hw_name_by_type(param->val_type)); 
-    cJSON_AddStringToObject(jp, "val", hw_var2string(param->val));
-    // cJSON_AddStringToObject(jp, "t", ); 
+    // sprintf(buf, "%skks编码-%d", GENERATE_NAME_USER, ++i);
+    cJSON_AddStringToObject(jp, "kks", param->kks);
+    cJSON_AddStringToObject(jp, "ref", ref); 
+    cJSON_AddStringToObject(jp, "vtype", get_hw_name_by_type(param->val_type));
+    hw->get_val_strUnit(buf, param);
+    cJSON_AddStringToObject(jp, "val", buf);
+    cJSON_AddStringToObject(jp, "t", hw->hwInfo.time);
 
     return true;
 }
 
-_Bool ws_format_hardware_data(hw_cache_t **pData, uint16_t number, char **out)
+_Bool ws_format_hardware_data(hw_info_t* hwd, hw_cache_t **pData, uint16_t number, char **out)
 {
     int i;
     cJSON *root = cJSON_CreateObject();
@@ -118,11 +121,11 @@ _Bool ws_format_hardware_data(hw_cache_t **pData, uint16_t number, char **out)
     }
 
     // zlog_info("format hw data");
-    cJSON_AddStringToObject(root, "name", "发变811层");         // fix: TBD
-    cJSON_AddStringToObject(root, "id", "202303110004xl");
-    cJSON_AddStringToObject(root, "terminal", "CUR");
+    cJSON_AddStringToObject(root, "name", hwd->name);         // fix: TBD
+    cJSON_AddStringToObject(root, "id", hwd->id);
+    cJSON_AddStringToObject(root, "terminal", hwd->_kind);
     cJSON_AddStringToObject(root, "mtype", "MSGE");
-    cJSON_AddStringToObject(root, "t", "2023-04-05 09:28:47.475");
+    cJSON_AddStringToObject(root, "t", hwd->time);
 
     for (i = 0; i < number; i++)
     {
@@ -141,9 +144,9 @@ _Bool ws_format_hardware_data(hw_cache_t **pData, uint16_t number, char **out)
         if (!(jparam = cJSON_CreateObject()))
             return -1;
     
-        zlog_info("param:[ kks:%s ref:%sval:%f type:%d ]", pd->val, pd->val_type);
+        // zlog_info("param:[ kks:%s ref:%sval:%f type:%d ]"," ", "", pd->val, pd->val_type);
         hw->hw_used_cache(pd);                      // set used
-        _ws_format_hardware_param(jparam, pd);      // 构建json参数数据集
+        _ws_format_hardware_param(jparam, pd);      // 构建json上报参数集
         
         cJSON_AddItemToArray(array, jparam);
     }

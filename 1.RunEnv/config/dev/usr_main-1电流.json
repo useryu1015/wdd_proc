@@ -6,43 +6,43 @@
 	"time":	"2023-04-05 09:28:47.475",
 	"param":	[{
 			"kks":	"_TBD_kks编码-1",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	1
 		}, {
 			"kks":	"_TBD_kks编码-2",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	2
 		}, {
 			"kks":	"_TBD_kks编码-3",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	3
 		}, {
 			"kks":	"_TBD_kks编码-4",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	4
 		}, {
 			"kks":	"_TBD_kks编码-5",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	5
 		}, {
 			"kks":	"_TBD_kks编码-6",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	6
 		}, {
 			"kks":	"_TBD_kks编码-7",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	7
 		}, {
 			"kks":	"_TBD_kks编码-8",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	8
 		}, {
 			"kks":	"_TBD_kks编码-9",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	9
 		}, {
 			"kks":	"_TBD_kks编码-10",
-			"room":	"_TBD_",
+			"vtype":	"电流",
 			"port":	10
 		}]
 }
