@@ -92,19 +92,23 @@ _Bool _ws_format_hardware_param(cJSON *jp, hw_cache_t *param)
 {
     char ref[WS_STRLEN_MAX];
     char buf[128] = {0};
+    char val[128] = {0};
 
     if (!jp || !param)
         return false;
 
-    hw->get_param_ref(ref, param);
+
 
     // sprintf(buf, "%skks编码-%d", GENERATE_NAME_USER, ++i);
     cJSON_AddStringToObject(jp, "kks", param->kks);
-    cJSON_AddStringToObject(jp, "ref", ref); 
+    hw->get_param_ref(ref, param);
+    cJSON_AddStringToObject(jp, "ref", ref);
+    // zlog_info("vtype: %d - %s",param->val_type, get_hw_name_by_type(param->val_type));
     cJSON_AddStringToObject(jp, "vtype", get_hw_name_by_type(param->val_type));
-    hw->get_val_strUnit(buf, param);
-    cJSON_AddStringToObject(jp, "val", buf);
-    cJSON_AddStringToObject(jp, "t", hw->hwInfo.time);
+    
+    hw->get_val_strUnit(val, param, hw->get_val(param));
+    cJSON_AddStringToObject(jp, "val", val);
+    cJSON_AddStringToObject(jp, "t", param->param_time);
 
     return true;
 }
@@ -125,7 +129,7 @@ _Bool ws_format_hardware_data(hw_info_t* hwd, hw_cache_t **pData, uint16_t numbe
     cJSON_AddStringToObject(root, "id", hwd->id);
     cJSON_AddStringToObject(root, "terminal", hwd->_kind);
     cJSON_AddStringToObject(root, "mtype", "MSGE");
-    cJSON_AddStringToObject(root, "t", hwd->time);
+    cJSON_AddStringToObject(root, "t", hwd->time);          // fix: 时钟源
 
     for (i = 0; i < number; i++)
     {

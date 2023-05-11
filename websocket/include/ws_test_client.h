@@ -11,8 +11,8 @@
 #include "libwebsockets.h"
 #include "zlog.h"
 
-#define WS_TX_MAX_LEN (10 * 1024)
-#define WS_RX_MAX_LEN (10 * 1024)
+#define WS_TX_MAX_LEN (100 * 1024)
+#define WS_RX_MAX_LEN (100 * 1024)
 
 #define WS_SUB_PROTOCOL_NUM 3
 #define MAX_PAYLOAD_SIZE  10 * 1024
@@ -131,7 +131,9 @@ extern ws_sub_protocol_t ws_prot[WS_SUB_PROTOCOL_NUM];
 
 
 void* test_callbake_msgHandle(void *arg);
-int run_ws_client();
+void* run_ws_client(void *arg);
+
+extern ws_sub_protocol_t ws_prot[WS_SUB_PROTOCOL_NUM];			// fix:  xxxxx
 
 #ifdef __cplusplus
 }

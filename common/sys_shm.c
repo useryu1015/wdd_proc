@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/shm.h>
+#include <errno.h>
 
 #include "zlog.h"
 // #include "dataDef.h"
@@ -22,6 +23,7 @@ void shm_close(key_t shm_id)
 int shm_open(key_t key, uint32_t size, void **addr)
 {
     int shmid;
+    key_t fkey = ftok("/tmp", key);             // why? 
 
     if (*addr)
     {
@@ -30,10 +32,12 @@ int shm_open(key_t key, uint32_t size, void **addr)
     }
     zlog_info("key:%d size:%d", key, size);
 
-    shmid = shmget(key, size, 0666 || IPC_CREAT);
+    // shmid = shmget(key, size, 0666 || IPC_CREAT);        // 标准
+    shmid = shmget(fkey, size, 0666 || IPC_CREAT);          // imx
     if (shmid < 0)
     {
         zlog_error("shmget failed!");
+        zlog_error("errno = %d shmid:%d \n", errno, shmid);
         return -1;
     }
 

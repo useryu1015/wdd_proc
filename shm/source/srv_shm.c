@@ -1,5 +1,4 @@
 #include "common.h"
-#include "srv_hardware.h"
 #include "srv_shm.h"
 
 
@@ -10,7 +9,8 @@ int shm_hardware_init(void **shmData)
         zlog_info("shm not NULL");
     }
 
-    if (!shm_open(SHM_HW_KEY, sizeof(SHM_DATA_DEF), (void **)shmData))
+    // if (!shm_open(SHM_HW_KEY, sizeof(SHM_DATA_DEF), (void **)shmData))
+    if (shm_open(SHM_HW_KEY, 1024 * 4, (void **)shmData) < 0)
     {
         zlog_error("shm init failed");
         return -1;
@@ -32,7 +32,7 @@ int shm_init(shm_handle_t *shm_handle)
 
     shm_handle->shm_id = shm_open(shm_handle->key, shm_handle->size,
                                     (void **)&shm_handle->paddr);
-    if (!shm_handle->shm_id)
+    if (shm_handle->shm_id < 0)
     {
         zlog_error("shm init failed");
         return -1;

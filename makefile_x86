@@ -4,8 +4,8 @@
 #	include：头文件路径
 #	source： 源文件路径
 TARGET	:= proc_test
-# CC	:= 
-# CXX := 
+CC	:= gcc
+CXX := g++
 DEBUG = -g -O2
 CFLAGS  = -c $(DEBUG) $(INCS_P) -Wall				#1 设置编译选项：		# 在编译.c文件时	#-I:指定头文件路径 -L:指定库文件路径 -Wl,R:动态链接lib库
 LDFLAGS	= -lcrypto -lpthread -lm $(lib) $(LIB_P)  	#2 指定链接器要链接那些库文件	# 在链接.o文件时
@@ -19,8 +19,8 @@ source  := ./ #../src
 src_out := ./2.Tool/generate_json/* ./3.WDD/* ./3.WDD/CPP_TEST/* ./2.Tool/StringTable/* ./2.Tool/shm_test/* ./2.Tool/wdd_shm_test/* #./shm/source/* #./libwebsockets-x86/* #./cpp_bak.c #./realtime/source/rtdb_gdw376.c ./commons/test/*.c ./config/test/*.c ./mqtt/test/*.c ./realtime/test/*.c ./modbus/test/*.c
 
 #			指定库文件和路径				#
-lib	:= -lwebsockets # -lssl
-LIB_P	:= -L./1.RunEnv/lib_imx	# tips: /test_file/lib-->/lib-->/usr/lib-->/usr/local/lib
+lib	:= -lwebsockets -lssl
+LIB_P	:= -L./1.RunEnv/lib	# tips: /test_file/lib-->/lib-->/usr/lib-->/usr/local/lib
 
 
 ## 添加链接器-I文件路径

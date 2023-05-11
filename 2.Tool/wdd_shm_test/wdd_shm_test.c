@@ -16,10 +16,13 @@ int main(int argc, char **argv)
     SHM_DATA_DEF *pData;
     int shmid;
     char dtyep[32];
+    key_t key = ftok("/tmp", SHM_HW_KEY);
+    int size = 1024 * 4;
 
     // 创建共享内存
-    printf("key:%d size:%d\n", SHM_HW_KEY, sizeof(SHM_DATA_DEF));
-    shmid = shmget((key_t)SHM_HW_KEY, sizeof(SHM_DATA_DEF), 0666 | IPC_CREAT);
+    printf("key:%d size:%d\n", key, size);
+    // shmid = shmget((key_t)SHM_HW_KEY, sizeof(SHM_DATA_DEF), 0666 | IPC_CREAT);
+    shmid = shmget((key_t)key, size, 0666 | IPC_CREAT);
     if (shmid == -1)
     {
         fprintf(stderr, "shmget failed\n");
@@ -38,9 +41,9 @@ int main(int argc, char **argv)
     printf("Memory attched at:%p %d\n", shm, (long)shm);
 
     /*硬件状态*/
-    pData->info.currentChNum = 10;
-    pData->info.voltageChNum = 12;
-    pData->info.aiChNumI = 8;
+    pData->info.currentChNum = 8;
+    pData->info.voltageChNum = 8;
+    pData->info.aiChNumI = 4;
     pData->info.aiChNumV = 8;
     pData->info.diChNum = 2;
 
@@ -78,11 +81,18 @@ int main(int argc, char **argv)
             pData->data.currentA[i] = i * rands;
         }
 
+        for (i = 0; i < pData->info.voltageChNum; i++)
+        {
+            pData->data.voltageV[i] = (int)(i * rands *13) % 123;
+            printf("VOL: %f \n", pData->data.voltageV[i]);
+        }
+
+        printf("\n");
         for (i = 0; i < pData->info.aiChNumI; i++)
         {
 
             pData->data.aiValI[i] = pData->data.aiValI[i] + 1;
-            // printf("AI: %f \n", pData->data.aiValI[i]);
+            printf("AI: %f \n", pData->data.aiValI[i]);
         }
 
         for (i = 0; i < pData->info.aiChNumV; i++)
@@ -94,7 +104,7 @@ int main(int argc, char **argv)
         pData->data.envMonitor.temperature = rands;
 
         printf("\n\n");
-        printf("ChI:%d ChV:%d ChEnv:%d\n", pData->info.aiChNumI, pData->info.aiChNumV, 10);
+        printf("AII:%d AIV:%d ChI:%d ChV:%d ChEnv:%d\n", pData->info.aiChNumI, pData->info.aiChNumV, pData->info.currentChNum,pData->info.voltageChNum, -1);
         // printf("version: %s \n", pData->info.hardwareVer);
     }
 

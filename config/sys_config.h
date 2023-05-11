@@ -16,7 +16,7 @@
 #define JSON_HW_ENV_SNUM 7
 
 
-#define SHM_HW_KEY (key_t)(201)
+#define SHM_HW_KEY (key_t)(209)
 
 #define WS_STRLEN_MAX (256)
 #define WS_VAL_STRLEN_MAX (WS_STRLEN_MAX)

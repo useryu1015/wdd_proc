@@ -111,7 +111,8 @@ void* test_callbake_msgHandle(void *arg)
 
 
         /* 发送数据*/
-        if (vhd->user_state == USER_TX || 1)
+        // if (vhd->user_state == USER_TX || 1)
+        if (vhd->user_state == USER_TX && 0)
         {
             static uint32_t limit;
 

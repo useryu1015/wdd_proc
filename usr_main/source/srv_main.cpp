@@ -42,8 +42,9 @@ void signal_table_handler(int signo)
 }
 
 /**
- * 业务主线程
+ * 业务主线程:
  *  WDOG、重启、
+ *  优化： 将每个任务改为独立线程
 */
 int loop()
 {
@@ -57,18 +58,18 @@ int loop()
         // run_shm_heartbeat();
 
         /* 外设参数采集*/
-        hw->hw_heartbeat();
+        hw->hw_heartbeat();         // run_hw_xx
         // run_hardware_monitor();
 
         /* 上位机数据交互*/
-        ws_heartbeat();
+        ws_heartbeat();             // run_websocket_clinet();
 
 
         if (g_table && ratelimit_connects(&tsec, 0u)) {
             hw->show_hw_table();
         }
 
-        usleep(10 *10 * 1000);          // 业务频率
+        usleep(10 *10 * 1000);          // 业务频率， 改为 ulimit-time
     }
     
     return -1;
@@ -124,12 +125,13 @@ int main(int argc, char* argv[])
     /* Use Tool*/
     option_main(argc, argv);
 
-    /* 上位机 数据交互 线程*/
-    // run_ws_client();
+    /* 通道维护服务*/
+    start_channel_services((void *)0);
+
 
     while (g_running)
     {
-        loop();
+        loop();                 // fix!!!!
 
         // sleep(1);
         zlog_fatal("sys crash!");

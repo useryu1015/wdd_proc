@@ -22,6 +22,7 @@ typedef enum _hw_device_type_e
     HW_TYPE_FREQ,   //频率
     HW_TYPE_POWER,  //功率    
     HW_TYPE_ELEC,   //电能
+    HW_TYPE_RESV,   // 预留， 作为enum遍历条件！！
     HW_TYPE_1,   //
     HW_TYPE_2,   //
     // 
@@ -64,11 +65,12 @@ typedef struct _hw_cache_t
     hw_dev_port _GPIO;         // *接入物理通道端口（0-32）   *数据来源
 
     char kks[64];
+    char zone[64];          // 安装位置 [↓设备]
+    char ref[128];          // 参数描述：区域/设备.参数
     hw_dev_type_e val_type;     // 数据类型
     // hw_dev_kind_e dev_kind;  // 设备种类
     float val;
-    struct timeval t;
-    char room[64];          // 安装位置
+    char param_time[64];        // 更新时间
 
     int rangeI[2];           // 量程：模拟量  [下限, 上限]
     int rangeD[2];           // 量程：数字量
@@ -131,7 +133,9 @@ public:
     int get_device_kind_by_type(hw_dev_type_e vtype);
     
     int get_param_ref(char *ref, hw_cache_t *param);
+    float get_val(hw_cache_t *param);
     int get_val_strUnit(char *buf, hw_cache_t *param);
+    int get_val_strUnit(char *buf, hw_cache_t *param, float val);    
     
     void show_hw_table();
 private:

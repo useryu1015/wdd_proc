@@ -104,8 +104,10 @@ void cJSON_ParseParamInfo(const cJSON* json, hw_cache_t* pval) {
 			strncpy(pval->kks, next->valuestring, sizeof(pval->kks));
 		} else if (0 == cJSON_strcasecmp("vtype", next->string)) {
             pval->val_type = get_hw_type_by_name(next->valuestring);
-		} else if (0 == cJSON_strcasecmp("room", next->string)) {
-            strncpy(pval->room, next->valuestring, sizeof(pval->room));
+		} else if (0 == cJSON_strcasecmp("zone", next->string)) {
+            strncpy(pval->zone, next->valuestring, sizeof(pval->zone));
+		} else if (0 == cJSON_strcasecmp("ref", next->string)) {
+            strncpy(pval->ref, next->valuestring, sizeof(pval->ref));
 		} else if (0 == cJSON_strcasecmp("port", next->string)) {
             pval->_GPIO.io = next->valueint;
 		} else if (0 == cJSON_strcasecmp("rangeI", next->string)) {
@@ -136,7 +138,7 @@ void cJSON_ParseMainInfo(const cJSON *json)
         return;
 
     cJSON_ParseObjectInfo(json, &hw->hwInfo);       // titel
-    zlog_info("Iint main id:%s name:%s", hw->hwInfo.id, hw->hwInfo.name);
+    // zlog_info("Iint main id:%s name:%s", hw->hwInfo.id, hw->hwInfo.name);
 
     for (next = json->child; NULL != next; next = next->next)
     {
@@ -144,9 +146,12 @@ void cJSON_ParseMainInfo(const cJSON *json)
         {
             int i;
             struct cJSON *next_chd;
+            // printf("ii: %d  hw->nChNum:%d \n", i, hw->nChNum);
 
-            for (i = 0, next_chd = next->child; i < hw->nChNum; ++i, next_chd = next_chd->next)
+            for (i = 0, next_chd = next->child; i < hw->nChNum && next_chd;
+                 i++, next_chd = next_chd->next)     // fix: && next_chd（如果配置文件参数点数量过少，xx）
             {
+                // printf("i: %d\n", i);
                 cJSON_ParseParamInfo(next_chd, hw->pCache[i]);
                 // zlog_info("Init param kks:%s vtype:%s gpio:%d", hw->pCache[i]->kks, 
                 //             get_hw_name_by_type(hw->pCache[i]->val_type), hw->pCache[i]->_GPIO.io);

@@ -249,7 +249,7 @@ int ws_prot_regist(ws_sub_protocol_t *p_wsi, struct lws_client_connect_info *i)
         if (!p_wsi[n].wsi_multi /*&& ratelimit_connects(&p_wsi[n].rl_multi, 2u)*/) {
             p_wsi[n].prot_name = protocols[n].name;
             p_wsi[n].p_user = malloc(LWS_PRE + WS_TX_MAX_LEN);
-
+zlog_info("size:%d  n:%d ", sizeof(p_wsi[n].p_user), n);
             i->protocol = protocols[n].name;                // 配置ws子协议，后续将请求注册到服务端中
             i->pwsi = &p_wsi[n].wsi_multi;                  // store the new wsi here early in the connection process
             i->userdata = p_wsi[n].p_user;                  // 配置回调函数user指针
@@ -348,7 +348,7 @@ int ws_client_monitor(ws_sub_protocol_t *p_wsi)
     return 0;
 }
 
-int run_ws_client() 
+void *run_ws_client(void *arg) 
 {
     // 信号处理函数
  

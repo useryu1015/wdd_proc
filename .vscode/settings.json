@@ -63,6 +63,7 @@
         "zlog.h": "c",
         "stringtable.h": "c",
         "cjson.h": "c",
-        "string": "cpp"
+        "string": "cpp",
+        "random": "cpp"
     }
 }

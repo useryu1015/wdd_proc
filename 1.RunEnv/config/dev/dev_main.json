@@ -1,50 +1,66 @@
 {
+	"freq_sec":	60.100000,
 	"name":	"_TBD_安装区域",
 	"id":	"202303110004xl",
-	"terminal":	"CUR",
+	"terminal":	"ASE",
 	"disable":	false,
-	"time":	"2023-04-05 09:28:47.475",
+	"vtype_list":	"温度,湿度,噪声,PM2.5,PM10,氧气,TVOC,流量,累积流量,转速,频率,功率,电能",
+	"vlist_desc":	"根据vtype_list配置 param-vtype的设备类型",
 	"param":	[{
 			"kks":	"_TBD_kks编码-1",
-			"room":	"_TBD_",
+			"ref":	"_TBD_ref-1",
 			"port":	1,
-            "rangeI": [4, 20],
-            "rangeD": [-10, 100]			
+			"vtype":	"温度",
+			"rangeI":	[0, 40],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-2",
-			"room":	"_TBD_",
-			"port":	2
+			"ref":	"_TBD_ref-2",
+			"port":	2,
+			"vtype":	"湿度",
+			"rangeI":	[0, 80],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-3",
-			"room":	"_TBD_",
-			"port":	3
+			"ref":	"_TBD_ref-3",
+			"port":	3,
+			"vtype":	"噪声",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-4",
-			"room":	"_TBD_",
-			"port":	4
+			"ref":	"_TBD_ref-4",
+			"port":	4,
+			"vtype":	"氧气",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-5",
-			"room":	"_TBD_",
-			"port":	5
+			"ref":	"_TBD_ref-5",
+			"port":	5,
+			"vtype":	"氧气",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-6",
-			"room":	"_TBD_",
-			"port":	6
+			"ref":	"_TBD_ref-6",
+			"port":	6,
+			"vtype":	"温度",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-7",
-			"room":	"_TBD_",
-			"port":	7
+			"ref":	"_TBD_ref-7",
+			"port":	7,
+			"vtype":	"温度",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
 		}, {
 			"kks":	"_TBD_kks编码-8",
-			"room":	"_TBD_",
-			"port":	8
-		}, {
-			"kks":	"_TBD_kks编码-9",
-			"room":	"_TBD_",
-			"port":	9
-		}, {
-			"kks":	"_TBD_kks编码-10",
-			"room":	"_TBD_",
-			"port":	10
+			"ref":	"_TBD_ref-8",
+			"port":	8,
+			"vtype":	"温度",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
 		}]
 }

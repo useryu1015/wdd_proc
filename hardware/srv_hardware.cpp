@@ -1,6 +1,7 @@
 #include "dataDef.h"
 #include "srv_hardware.h"
 #include "ws_dataflow.h"
+#include "zlog.h"
 
 hardware *hw;
 
@@ -52,9 +53,9 @@ int hardware::hw_get_channel_sum()
     {
     case HW_KIND_CUR:   return dev_info->currentChNum;
     case HW_KIND_VOL:   return dev_info->voltageChNum;
-    case HW_KIND_ENV:   return get_env_isEnable_number();
+    case HW_KIND_ENV:   return get_env_isEnable_number();       // fix
     case HW_KIND_ASE:
-    case HW_KIND_PSE:   return dev_info->aiChNumI;
+    case HW_KIND_PSE:   return dev_info->aiChNumI;              // 有源和无源 共用xx
     default:
         zlog_error("Channel number too less ");
         break;
@@ -70,10 +71,15 @@ int hardware::get_param_ref(char *ref, hw_cache_t *param)
     if (!ref || !param)
         return -1;
 
+    /* A: */
+    rtn = sprintf(ref, "%s", param->ref);
+    return rtn;
+
+    /* B: */
     if (hwInfo.kind == HW_KIND_ENV)
-        rtn = sprintf(ref, "%s/%s.%s", hwInfo.name, param->room, get_hw_name_by_type(param->val_type));
+        rtn = sprintf(ref, "%s/%s.%s", hwInfo.name, param->zone, get_hw_name_by_type(param->val_type));
     else
-        rtn = sprintf(ref, "%s/%s.%s%d", hwInfo.name, param->room, get_hw_name_by_type(param->val_type), param->_GPIO.io);
+        rtn = sprintf(ref, "%s/%s.%s%d", hwInfo.name, param->zone, get_hw_name_by_type(param->val_type), param->_GPIO.io);
 
     if (!rtn) {
         zlog_error("error");
@@ -81,6 +87,38 @@ int hardware::get_param_ref(char *ref, hw_cache_t *param)
     }
 
     return 0;
+}
+
+float hardware::get_val(hw_cache_t *param)
+{
+    int rtn = 0;
+    float buf;
+    // char vals[128];
+
+    if (!param)
+        return -1;
+
+    if (hwInfo.kind == HW_KIND_ASE || hwInfo.kind == HW_KIND_PSE) {
+        buf = data_AD_convert(param->val, 
+                param->rangeI[0], param->rangeI[1], param->rangeD[0], param->rangeD[1]);
+    } else
+        buf = param->val;
+
+    return buf;
+}
+
+int hardware::get_val_strUnit(char *buf, hw_cache_t *param, float val)
+{
+    int rtn;
+    // char vals[128];
+
+    if (!buf || !param)
+        return -1;
+
+    // "4.8-A"
+    rtn = sprintf(buf, "%.2f-%s", val, get_hw_unit_by_type(param->val_type));
+
+    return rtn;
 }
 
 int hardware::get_val_strUnit(char *buf, hw_cache_t *param)
@@ -120,7 +158,7 @@ void hardware::show_hw_table()
         sprintf(ref, "xx/%s.%s%d", vtype,hw->hwInfo._kind, hw->pCache[i]->_GPIO.io);
         // get_param_ref(ref, pcache);
         sprintf(str, "%d,%s,%s,%s,%s,%s", y, pcache->kks, ref, vtype, 
-                                        hw_var2string(pcache->val), hw->hwInfo.time);
+                                        hw_var2string(pcache->val), pcache->param_time);
         s_table_valuesetxs(hw_table, y++, x, str, ',');
     }
 
@@ -170,21 +208,21 @@ void *objects_new_2arr(unsigned int nitems, unsigned int obj_size)
 
 int get_device_kind_by_type(hw_dev_type_e vtype)
 {
-    switch (vtype)
-    {
-    case HW_TYPE_CUR:   return HW_KIND_CUR;
-    case HW_TYPE_VOL:   return HW_KIND_VOL;
-    case HW_TYPE_TEMP:
-    case HW_TYPE_HUMI:
-    case HW_TYPE_NIOSE:
-    case HW_TYPE_PM2_5:
-    case HW_TYPE_PM10: 
-    case HW_TYPE_O2:
-    case HW_TYPE_TVOC:  return HW_KIND_ENV;
-    default:
-        zlog_error("No such datatype is defined!"); 
-        break;
-    }
+    // switch (vtype)
+    // {
+    // case HW_TYPE_CUR:   return HW_KIND_CUR;
+    // case HW_TYPE_VOL:   return HW_KIND_VOL;
+    // case HW_TYPE_TEMP:
+    // case HW_TYPE_HUMI:
+    // case HW_TYPE_NIOSE:
+    // case HW_TYPE_PM2_5:
+    // case HW_TYPE_PM10: 
+    // case HW_TYPE_O2:
+    // case HW_TYPE_TVOC:  return HW_KIND_ENV;
+    // default:
+    //     zlog_error("No such datatype is defined!"); 
+    //     break;
+    // }
 
     return -1;
 }
@@ -257,7 +295,7 @@ inline int hardware::hw_update_cache(hw_cache_t *data, uint16_t ch)
         return -1;
 
     data->val = real_data->aiValI[ch];
-    data->t = real_data->updateTime;
+    // data->t = real_data->updateTime;
 
     data->status = HW_DATA_UPTARE;
 
@@ -338,6 +376,8 @@ void hardware::hw_param_monitor()
 {
     int i;
     float rdata;
+
+    get_sys_time(hwInfo.time);
     
     for (i = 0; i < nChNum; i++)
     {
@@ -346,19 +386,20 @@ void hardware::hw_param_monitor()
         /* if 未更新 && 超过定时更新周期*/
         // pd->status = HW_DATA_KEEP;
         
+        // zlog_info("pd->_GPIO.io:%d  ", pd->_GPIO.io);
         get_gpio_val(&rdata, hwInfo.kind, pd->val_type, pd->_GPIO.io);
-        // zlog_info("type %d o%f r%f cache%f", hwInfo.kind, real_data->currentA[i], rdata, pd->val);
+        // zlog_info("type %d o%f r%f cache%f", hwInfo.kind, real_data->aiValI[i], rdata, pd->val);
 
         if (pd->val == rdata)
             continue;
 
         /* 更新数据 */
-        pthread_mutex_lock(&pd->lock_ring); /* --------- ring lock { */
+        // pthread_mutex_lock(&pd->lock_ring); /* --------- ring lock { */          // fix： bus error
         pd->val = rdata;
-        pd->t = real_data->updateTime;
+        get_sys_time(pd->param_time);
 
         pd->status = HW_DATA_UPTARE;
-        pthread_mutex_unlock(&pd->lock_ring); /* } ring lock */
+        // pthread_mutex_unlock(&pd->lock_ring); /* } ring lock */
         // zlog_info("Value: %f", pd->val);
     }
 }
@@ -384,15 +425,33 @@ int hardware::hw_info_init(SHM_DATA_DEF *shmD)
     nChNum = hw_get_channel_sum();
     pCache = (hw_cache_t **)objects_new_2arr(nChNum, sizeof(hw_cache_t));
     // nChNum = (dev_info->aiChNumI < AI_NUM_MAX) ? dev_info->aiChNumI : AI_NUM_MAX;
-
     zlog_info("GPIO sum: %d", nChNum);
 
-    // 初始化设备类型； 目前只能根据json配置
-    // for (i = 0; i < nChNum; i++) {
-    //     hw_cache_t *pd = pCache[i];
+//             pthread_mutex_init(&p_wsi[n].lock_ring, NULL);
 
-    //     pd->val_type = HW_TYPE_CUR;
-    // }
+    /* 根据硬件属性， 初始化各参数类型 */
+    for (i = 0; i < nChNum; i++) {
+        hw_cache_t *pd = pCache[i];
+
+        if (hwInfo.kind == HW_KIND_CUR) {
+            pd->val_type = HW_TYPE_CUR;
+        } else if (hwInfo.kind == HW_KIND_VOL) {
+            pd->val_type = HW_TYPE_VOL;
+        } else if (hwInfo.kind == HW_KIND_ENV) {
+            pd->val_type = (hw_dev_type_e)((int)HW_TYPE_TEMP + i);      // fix: 定位方式
+        // } else if (hwInfo.kind == HW_KIND_ASE) {
+        //     pd->val_type = HW_KIND_ASE;
+        // } else if (hwInfo.kind == HW_KIND_PSE) {
+        //     pd->val_type = HW_KIND_PSE;
+        } else {
+            // zlog_info("please config json field: vtype");
+            // return -1;
+        }
+
+
+        /* other */
+        // pthread_mutex_init(&pd->lock_ring, NULL);
+    }
 
     zlog_info("hardware init done");
     return 0;
@@ -416,6 +475,7 @@ hardware::hardware(SHM_DATA_DEF *shmD)
     if (hw_info_init(shmD) != 0)
     {
         zlog_info("hardware init failed");
+        exit(1);
     }
 
 }
