@@ -35,7 +35,7 @@ _Bool _usr_genrate_param(cJSON *jp, hw_cache_t *param)
     sprintf(buf, "%skks编码-%d", GENERATE_NAME_USER, ++i);
     cJSON_AddStringToObject(jp, "kks", buf);
     // cJSON_AddStringToObject(jp, "zone", GENERATE_NAME_USER);
-    sprintf(buf, "%sref-%d", GENERATE_NAME_USER, i);
+    sprintf(buf, "%sref/机组.%s%d", GENERATE_NAME_USER, "类型", i);                // 示例："发变811层/机组1.水压1"
     cJSON_AddStringToObject(jp, "ref", buf);
     // cJSON_AddStringToObject(jp, "port", "_HDW_接入端口");
 
@@ -110,7 +110,7 @@ _Bool usr_genrate_proc_json(char **out)
         
         cJSON_AddItemToArray(array, jparam);
     }
-    cJSON_AddItemToObject(root, "param", array);
+    cJSON_AddItemToObject(root, "params", array);
 
     *out = cJSON_Print(root);
     cJSON_Delete(root);
@@ -144,14 +144,19 @@ int option_main(int argc, char **argv)
  
     opterr = 0;  //使getopt不行stderr输出错误信息
  
-    while( (result = getopt(argc, argv, ":g::a::b:c:D:")) != -1 )
+    while( (result = getopt(argc, argv, ":g::d::a::b:c:D:")) != -1 )
     {
            switch(result)
           {
             case 'g':
                 generate_json_file();
+                zlog_info("脚本函数\n\n /mv %s %s%s.%s", TREMINAL_GENR_CONF_FILE, CONF_PATH, CONF_NAME, CONF_EXT);
                 exit(0);
                 break;
+            case 'd':
+                zlog_info("脚本函数\n\n /mv %s %s%s.%s", TREMINAL_GENR_CONF_FILE, CONF_PATH, CONF_NAME, CONF_EXT);
+                exit(0);
+                break;                
             case 'a':
                 zlog_info("option=a, optopt=%c, optarg=%s", optopt, optarg);
                 break;

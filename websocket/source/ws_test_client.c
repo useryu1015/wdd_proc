@@ -12,10 +12,9 @@ void sighdl( int sig ) {
 */
 struct session_data ws_writeable = {0};
 
-# define LOG_TEST   \
-    if ( user ) {   \
-        zlog_warn("LOG_TEST: %s", __func__);  \
-        zlog_warn(" calllback other reason %d  ", reason);    \
+# define LOG_TEST   ;  \
+    // if ( user ) {   \
+        zlog_warn(" calllback reason %d", reason);    \
     }
 
 
@@ -87,7 +86,7 @@ int protocol_test_callback( struct lws *wsi, enum lws_callback_reasons reason, v
         case LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION:
             break;
         case LWS_CALLBACK_CLIENT_ESTABLISHED:   // 连接到服务器成功
-            zlog_trace(" %s:Connected to server ok!", __func__);
+            zlog_trace(" %s:Connected to server done!", __func__);
 		    vhd->established = 1;
             break;
         case LWS_CALLBACK_CLIENT_RECEIVE:       // 接收到服务器数据后的回调，数据为in，其长度为len      // 注意：指针in的回收、释放始终由LWS框架管理，只要出了回调函数，该空间就会被LWS框架回收。
@@ -212,9 +211,8 @@ int srv_callback( struct lws *wsi, enum lws_callback_reasons reason, void *user,
 static const struct lws_protocols protocols[] = {
 	{
 		// "protocol_test_callback",       // 协议的名称
-		"test_callback",       // 协议的名称
-		// "",       // 协议的名称
-		protocol_test_callback,                  // 对应的回调函数
+		"test_callback",                   // 协议的名称
+		protocol_test_callback,         // 对应的回调函数
 		sizeof( struct session_data ),  // user堆栈大小； 在子协议初始化成功后lws内核才会分配内存
         4096,                           // 接收缓存区大小
         0, 
@@ -249,7 +247,7 @@ int ws_prot_regist(ws_sub_protocol_t *p_wsi, struct lws_client_connect_info *i)
         if (!p_wsi[n].wsi_multi /*&& ratelimit_connects(&p_wsi[n].rl_multi, 2u)*/) {
             p_wsi[n].prot_name = protocols[n].name;
             p_wsi[n].p_user = malloc(LWS_PRE + WS_TX_MAX_LEN);
-zlog_info("size:%d  n:%d ", sizeof(p_wsi[n].p_user), n);
+// zlog_info("size:%d  n:%d ", sizeof(p_wsi[n].p_user), n);
             i->protocol = protocols[n].name;                // 配置ws子协议，后续将请求注册到服务端中
             i->pwsi = &p_wsi[n].wsi_multi;                  // store the new wsi here early in the connection process
             i->userdata = p_wsi[n].p_user;                  // 配置回调函数user指针
@@ -318,8 +316,7 @@ int ws_prot_pthread_create(ws_sub_protocol_t *p_wsi)
             break;
         }
         
-        zlog_trace("protocols %d-%s: pthread create ", n, p_wsi[n].prot_name);
-
+        // zlog_trace("protocols %d-%s: pthread create", n, p_wsi[n].prot_name);
     }
 
     return 0;
@@ -365,15 +362,12 @@ void *run_ws_client(void *arg)
  
     struct lws_context *context = lws_create_context( &ctx_info );
 
-    // char address[] = "121.40.165.18";
-    // int port = 8800;
     // char address[] = "192.168.101.73";
     // int port = 8000;
+    // char address[] = "192.168.101.33";    
     /* http://172.17.68.125:8101/  这个是公司服务器部署demo  */
     char address[] = "172.17.68.125";
-    // char address[] = "192.168.101.33";
     int port = 10100;
-    // int port = 8101;
     char addr_port[256] = { 0 };
     sprintf(addr_port, "%s:%u", address, port & 65535 );
 

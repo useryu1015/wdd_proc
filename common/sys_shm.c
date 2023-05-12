@@ -30,14 +30,14 @@ int shm_open(key_t key, uint32_t size, void **addr)
         zlog_debug("addr not NULL");
         free(addr);
     }
-    zlog_info("key:%d size:%d", key, size);
+    zlog_info("key:%d size:%d", fkey, size);
 
     // shmid = shmget(key, size, 0666 || IPC_CREAT);        // 标准
     shmid = shmget(fkey, size, 0666 || IPC_CREAT);          // imx
     if (shmid < 0)
     {
         zlog_error("shmget failed!");
-        zlog_error("errno = %d shmid:%d \n", errno, shmid);
+        zlog_error("errno = %d shmid:%d", errno, shmid);
         return -1;
     }
 

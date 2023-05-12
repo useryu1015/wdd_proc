@@ -5,7 +5,7 @@
 #define CONF_NAME "dev_main"
 #define CONF_EXT  "json"
 
-#define CONF_PARAM_FIELD "param"
+#define CONF_PARAM_FIELD "params"
 #define CONF_WEBSK_FIELD "websocket"
 
 

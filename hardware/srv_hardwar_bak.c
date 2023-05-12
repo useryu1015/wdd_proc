@@ -1,6 +1,5 @@
-#include "dataDef.h"
-#include "srv_hardware.h"
-#include "ws_dataflow.h"
+// #include "dataDef.h"
+// #include "ws_dataflow.h"
 
 // int hw_shm_init()
 // {

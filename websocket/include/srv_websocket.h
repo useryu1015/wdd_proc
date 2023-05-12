@@ -4,6 +4,13 @@
 
 
 
+#define CMD_MES_PARAM (65537)
+#define CMD_MES_EVENT (65538)
+
+
+
+
+
 void ws_heartbeat();
 
 

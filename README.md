@@ -1,9 +1,9 @@
 **乌东德水电站**
-> 乌东德水电站初版示例程序，包含        
+> 乌东德水电站初版示例程序，包含：          
 >  shm数据采集、websocket数据上报、json解析、json构建、 
 > 
 
-![](4.Document/Image/3.%E4%B9%8C%E4%B8%9C%E5%BE%B7%E6%B0%B4%E7%94%B5%E7%AB%99%E4%B8%8A%E4%BD%8D%E6%9C%BA%E7%A4%BA%E4%BE%8B.png)
+![](4.Document/Image/ui_show.png)
 
 
 ## Usage

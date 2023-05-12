@@ -16,7 +16,7 @@ OBJ_PATH = ./4.mbuild/objs/
 include := ./ #../inc
 source  := ./ #../src
 #			指定不编译的文件				#
-src_out := ./2.Tool/generate_json/* ./3.WDD/* ./3.WDD/CPP_TEST/* ./2.Tool/StringTable/* ./2.Tool/shm_test/* ./2.Tool/wdd_shm_test/* #./shm/source/* #./libwebsockets-x86/* #./cpp_bak.c #./realtime/source/rtdb_gdw376.c ./commons/test/*.c ./config/test/*.c ./mqtt/test/*.c ./realtime/test/*.c ./modbus/test/*.c
+src_out := ./2.Tool/ws_server_test/* ./2.Tool/generate_json/* ./2.Tool/StringTable/* ./2.Tool/shm_test/* ./2.Tool/wdd_shm_test/* #./shm/source/* #./libwebsockets-x86/* #./cpp_bak.c #./realtime/source/rtdb_gdw376.c ./commons/test/*.c ./config/test/*.c ./mqtt/test/*.c ./realtime/test/*.c ./modbus/test/*.c
 
 #			指定库文件和路径				#
 lib	:= -lwebsockets # -lssl

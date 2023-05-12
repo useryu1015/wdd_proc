@@ -116,6 +116,7 @@ _Bool _ws_format_hardware_param(cJSON *jp, hw_cache_t *param)
 _Bool ws_format_hardware_data(hw_info_t* hwd, hw_cache_t **pData, uint16_t number, char **out)
 {
     int i;
+    cJSON *json = cJSON_CreateObject(); 
     cJSON *root = cJSON_CreateObject();
     cJSON *array = cJSON_CreateArray();
 
@@ -154,10 +155,15 @@ _Bool ws_format_hardware_data(hw_info_t* hwd, hw_cache_t **pData, uint16_t numbe
         
         cJSON_AddItemToArray(array, jparam);
     }
-    cJSON_AddItemToObject(root, "param", array);
+    cJSON_AddItemToObject(root, "params", array);
 
-    *out = cJSON_Print(root);
-    cJSON_Delete(root);
+
+    /* 打包到 "json": 字段中*/
+    cJSON_AddItemToObject(json, "json", root);
+
+    *out = cJSON_Print(json);
+    // *out = cJSON_PrintUnformatted(json);
+    cJSON_Delete(json);
 
     return true;
 }

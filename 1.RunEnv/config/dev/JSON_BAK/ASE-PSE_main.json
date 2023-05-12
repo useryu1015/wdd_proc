@@ -1,0 +1,66 @@
+{
+	"freq_sec":	60.100000,
+	"name":	"_TBD_安装区域",
+	"id":	"202303110004xl",
+	"terminal":	"ASE",
+	"disable":	false,
+	"vtype_list":	"温度,湿度,噪声,PM2.5,PM10,氧气,TVOC,流量,累积流量,转速,频率,功率,电能",
+	"vlist_desc":	"根据vtype_list配置 param-vtype的设备类型",
+	"param":	[{
+			"kks":	"_TBD_kks编码-1",
+			"ref":	"_TBD_ref/机组.类型1",
+			"port":	1,
+			"vtype":	"温度",
+			"rangeI":	[0, 40],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-2",
+			"ref":	"_TBD_ref/机组.类型2",
+			"port":	2,
+			"vtype":	"湿度",
+			"rangeI":	[0, 80],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-3",
+			"ref":	"_TBD_ref/机组.类型3",
+			"port":	3,
+			"vtype":	"噪声",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-4",
+			"ref":	"_TBD_ref/机组.类型4",
+			"port":	4,
+			"vtype":	"氧气",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-5",
+			"ref":	"_TBD_ref/机组.类型5",
+			"port":	5,
+			"vtype":	"氧气",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-6",
+			"ref":	"_TBD_ref/机组.类型6",
+			"port":	6,
+			"vtype":	"温度",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-7",
+			"ref":	"_TBD_ref/机组.类型7",
+			"port":	7,
+			"vtype":	"温度",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
+		}, {
+			"kks":	"_TBD_kks编码-8",
+			"ref":	"_TBD_ref/机组.类型8",
+			"port":	8,
+			"vtype":	"温度",
+			"rangeI":	[4, 20],
+			"rangeD":	[0, 100]
+		}]
+}

@@ -58,11 +58,11 @@ int loop()
         // run_shm_heartbeat();
 
         /* 外设参数采集*/
-        hw->hw_heartbeat();         // run_hw_xx
+        hw->hw_heartbeat();
         // run_hardware_monitor();
 
         /* 上位机数据交互*/
-        ws_heartbeat();             // run_websocket_clinet();
+        ws_heartbeat();
 
 
         if (g_table && ratelimit_connects(&tsec, 0u)) {
@@ -81,7 +81,6 @@ void drv_init()
     SHM_DATA_DEF *shmData;
 
     shm_hardware_init((void **)&shmData);
-    // int shm_init(shm_handle_t *shm_handle)
 
     hw = new hardware(shmData);
 }
@@ -92,16 +91,9 @@ void drv_init()
 */
 void serve_init()
 {
-    // hw_cache_t *pc;
-
-    // pc = hw->pCache[0];
-
-    // pc->val_type;
-    // pc->kks;
-    // pc->_GPIO;
-
     conf_main_init();
     zlog_info("conf main init done");
+
 
 }
 
@@ -128,12 +120,17 @@ int main(int argc, char* argv[])
     /* 通道维护服务*/
     start_channel_services((void *)0);
 
-
+    while (1)
+    {
+        sleep(2);
+        if (true)       // while init done;
+            break;
+    }
+    
     while (g_running)
     {
-        loop();                 // fix!!!!
+        loop();
 
-        // sleep(1);
         zlog_fatal("sys crash!");
     }
 

@@ -116,7 +116,7 @@ int hardware::get_val_strUnit(char *buf, hw_cache_t *param, float val)
         return -1;
 
     // "4.8-A"
-    rtn = sprintf(buf, "%.2f-%s", val, get_hw_unit_by_type(param->val_type));
+    rtn = sprintf(buf, "%.1f-%s", val, get_hw_unit_by_type(param->val_type));
 
     return rtn;
 }
@@ -130,7 +130,7 @@ int hardware::get_val_strUnit(char *buf, hw_cache_t *param)
         return -1;
 
     // "4.8-A"
-    rtn = sprintf(buf, "%.2f-%s", param->val, get_hw_unit_by_type(param->val_type));
+    rtn = sprintf(buf, "%.1f-%s", param->val, get_hw_unit_by_type(param->val_type));
     // zlog_info("unit: %s", vals);
 
     return rtn;
@@ -426,8 +426,6 @@ int hardware::hw_info_init(SHM_DATA_DEF *shmD)
     pCache = (hw_cache_t **)objects_new_2arr(nChNum, sizeof(hw_cache_t));
     // nChNum = (dev_info->aiChNumI < AI_NUM_MAX) ? dev_info->aiChNumI : AI_NUM_MAX;
     zlog_info("GPIO sum: %d", nChNum);
-
-//             pthread_mutex_init(&p_wsi[n].lock_ring, NULL);
 
     /* 根据硬件属性， 初始化各参数类型 */
     for (i = 0; i < nChNum; i++) {

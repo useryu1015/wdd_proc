@@ -41,11 +41,13 @@ int main(int argc, char **argv)
     printf("Memory attched at:%p %d\n", shm, (long)shm);
 
     /*硬件状态*/
-    pData->info.currentChNum = 8;
-    pData->info.voltageChNum = 8;
+    pData->info.currentChNum = 4;
+    pData->info.voltageChNum = 4;
     pData->info.aiChNumI = 4;
-    pData->info.aiChNumV = 8;
+    pData->info.aiChNumV = 4;
     pData->info.diChNum = 2;
+        printf("AII:%d AIV:%d ChI:%d ChV:%d ChEnv:%d\n", 
+            pData->info.aiChNumI, pData->info.aiChNumV, pData->info.currentChNum,pData->info.voltageChNum, -1);
 
     // sprintf(dtyep, "CUR:DA_IO_01");
     sprintf(dtyep, "%s:DA_IO_01", argv[1]);
@@ -104,7 +106,8 @@ int main(int argc, char **argv)
         pData->data.envMonitor.temperature = rands;
 
         printf("\n\n");
-        printf("AII:%d AIV:%d ChI:%d ChV:%d ChEnv:%d\n", pData->info.aiChNumI, pData->info.aiChNumV, pData->info.currentChNum,pData->info.voltageChNum, -1);
+        printf("AII:%d AIV:%d ChI:%d ChV:%d ChEnv:%d\n", 
+            pData->info.aiChNumI, pData->info.aiChNumV, pData->info.currentChNum,pData->info.voltageChNum, -1);
         // printf("version: %s \n", pData->info.hardwareVer);
     }
 
