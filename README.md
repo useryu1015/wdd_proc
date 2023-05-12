@@ -3,7 +3,7 @@
 >  shm数据采集、websocket数据上报、json解析、json构建、 
 > 
 
-![界面演示]](4.Document/Image/ui_show.png)
+![界面演示](4.Document/Image/ui_show.png)
 
 
 ## Usage
