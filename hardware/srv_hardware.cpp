@@ -459,7 +459,6 @@ int hardware::hw_info_init(SHM_DATA_DEF *shmD)
 void hardware::hw_heartbeat()
 {
     hw_param_monitor();
-
 }
 
 hardware::hardware()

@@ -4,10 +4,7 @@
 #include "dataDef.h"
 #include "sys_config.h"
 #include "srv_hardware.h"
-
 #include "sys_file.h"
-
-
 
 
 
@@ -132,10 +129,6 @@ void generate_json_file()
     write_file(TREMINAL_GENR_CONF_FILE, (uint8_t *)buf, strlen(buf));
 
 }
-
-
-
-
 
 
 int option_main(int argc, char **argv)

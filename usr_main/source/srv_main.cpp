@@ -6,30 +6,6 @@
 
 int g_running = true;
 int g_table = false;
-/*段错信号，打印堆栈信息*/
-// static void dump_segmentation(int signo)
-// {
-//     int i;
-//     int nptrs;
-//     void *p_buf[256];
-//     char **p_strs;
-//     nptrs = backtrace(p_buf, 256);
-//     printf("backtrace size:%d\n", nptrs);
-//     p_strs = backtrace_symbols(p_buf, nptrs);
-//     if (p_strs == NULL)
-//     {
-//         perror("symbols err");
-//     }
-//     else
-//     {
-//         for (i = 0; i < nptrs; i++)
-//         {
-//             printf(" [%02d] %s\n", i, p_strs[i]);
-//         }
-//         free(p_strs);
-//     }
-//     exit(-1);
-// }
 
 void signal_handler(int signo)
 {
@@ -59,11 +35,9 @@ int loop()
 
         /* 外设参数采集*/
         hw->hw_heartbeat();
-        // run_hardware_monitor();
 
         /* 上位机数据交互*/
         ws_heartbeat();
-
 
         if (g_table && ratelimit_connects(&tsec, 0u)) {
             hw->show_hw_table();
@@ -93,8 +67,6 @@ void serve_init()
 {
     conf_main_init();
     zlog_info("conf main init done");
-
-
 }
 
 
@@ -119,13 +91,7 @@ int main(int argc, char* argv[])
 
     /* 通道维护服务*/
     start_channel_services((void *)0);
-
-    while (1)
-    {
-        sleep(2);
-        if (true)       // while init done;
-            break;
-    }
+    sleep(2);
     
     while (g_running)
     {
