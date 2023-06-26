@@ -1,10 +1,12 @@
-**乌东德水电站**
+# 乌东德水电站
 > 乌东德水电站（采集终端）初版示例程序，包含：          
->  shm数据采集、websocket数据上报、json解析、json构建、 
+>  shm数据采集、websocket数据上报、json解析、json构建等
 > 
 
-![界面演示](4.Document/Image/ui_show.png)
-![运行示例](4.Document/Image/wdd_run.png)
+**界面演示：**
+[界面演示](4.Document/Image/ui_show.png)
+**运行示例：**
+[运行示例](4.Document/Image/wdd_run.png)
 
 
 ## Usage
