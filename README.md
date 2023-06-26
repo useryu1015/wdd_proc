@@ -4,17 +4,17 @@
 > 
 
 **界面演示：**
-![界面演示](4.Document/Image/ui_show.png =600x600)
+<img src="4.Document/Image/ui_show.png" width="600">
 **运行示例：**
-![运行示例](4.Document/Image/wdd_run.png =600x600)
-
+<img src="4.Document/Image/wdd_run.png" width="600">
 
 **采集数据展示：**
 <center class="half">
-    <img src="4.Document/Image/3.环境数据.png" width="300"/><img src="4.Document/Image/4.传感器数据.png" width="300"/>
+    <img src="4.Document/Image/3.环境数据.png" width="300"/><img src="4.Document/Image/3.环境数据.png" width="300"/><img src="4.Document/Image/3.环境数据.png" width="300"/>
 </center>
 
-![](4.Document/Image/3.环境数据.png)![](4.Document/Image/4.传感器数据.png)
+**采集数据展示：**
+![data](4.Document/Image/3.环境数据.png)![data](4.Document/Image/3.环境数据.png)
 
 
 
