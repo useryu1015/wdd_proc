@@ -4,7 +4,7 @@
 > 
 
 **界面演示：**
-<center class="half"><img src=4.Document/Image/ui_show.png" width="600" ></center>
+<center class="half"><img src="4.Document/Image/ui_show.png" width="600" ></center>
 
 **运行示例：**
 <center class="half"><img src="4.Document/Image/wdd_run.png" width="600" ></center>
@@ -13,13 +13,9 @@
 
 **采集数据展示：**
 <center class="half">
-    <img src="4.Document/Image/3.环境数据.png" width="300"/><img src="4.Document/Image/3.环境数据.png" width="300"/><img src="4.Document/Image/3.环境数据.png" width="300"/>
+    <img src="4.Document/Image/3.环境数据.png" width="400"/>
+    <img src="4.Document/Image/4.传感器数据.png" width="400"/>
 </center>
-
-**采集数据展示：**
-![data](4.Document/Image/3.环境数据.png)![data](4.Document/Image/3.环境数据.png)
-
-
 
 ## Usage
 * ./make_build.sh  #编译
