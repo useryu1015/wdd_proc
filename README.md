@@ -1,7 +1,6 @@
 # 乌东德水电站
 > 乌东德水电站（采集终端）初版示例程序，包含：          
 >  shm数据采集、websocket数据上报、json解析、json构建等
-> 
 
 **界面演示：**
 <center class="half"><img src="4.Document/Image/ui_show.png" width="600" ></center>
@@ -9,13 +8,15 @@
 **运行示例：**
 <center class="half"><img src="4.Document/Image/wdd_run.png" width="600" ></center>
 
-
-
 **采集数据展示：**
 <center class="half">
     <img src="4.Document/Image/3.环境数据.png" width="400"/>
     <img src="4.Document/Image/4.传感器数据.png" width="400"/>
 </center>
+
+**文件结构**
+<center class="half"><img src="4.Document/Image/5.采集终端应用程序文件结构.png" width="400" ></center>
+
 
 ## Usage
 * ./make_build.sh  #编译
