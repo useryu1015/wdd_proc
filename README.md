@@ -4,10 +4,12 @@
 > 
 
 **界面演示：**
-<a href="url"><img src="4.Document/Image/ui_show.png" align="left" height="600" width="600" ></a>
+<center class="half"><img src=4.Document/Image/ui_show.png" width="600" ></center>
 
 **运行示例：**
-<a href="url"><img src="4.Document/Image/wdd_run.png" align="left" height="600" width="600" ></a>
+<center class="half"><img src="4.Document/Image/wdd_run.png" width="600" ></center>
+
+
 
 **采集数据展示：**
 <center class="half">
